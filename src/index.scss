@@ -1,0 +1,78 @@
+html,
+body,
+div {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+.leaflet-container {
+  background-color: rgb(202, 221, 204);
+}
+
+.leaflet-tooltip {
+  &.plant-label {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    width: 80px;
+    height: 12px;
+    font-family: Roboto, Arial, sans-serif;
+
+    .plant-center {
+      position: absolute;
+      left: calc(50% - 4px);
+      top: calc(50% - 4px);
+      text-align: center;
+      height: 8px;
+      width: 8px;
+      border-radius: 50%;
+      background-color: #515151;
+      display: block;
+    }
+
+    .code, .height, .triangle {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
+    .code {
+      top: 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .height {
+      top: -22px;
+      font-size: 14px;
+      z-index: 10000;
+    }
+
+    .triangle {
+      margin: auto;
+      top: -38px;
+    }
+  }
+
+  &.rectangle-label {
+    min-width: 100px;
+    font-family: Roboto, Arial, sans-serif;
+    line-height: 1;
+    white-space: normal;
+    text-align: center;
+
+    .label {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .dimensions {
+      font-size: 14px;
+    }
+  }
+}
