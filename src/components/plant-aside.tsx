@@ -21,6 +21,7 @@ import styled from '@emotion/styled';
 import { FC } from 'react';
 import { hostNameFromUrl } from '../lib/hostname-from-url';
 import { Plant } from '../models/plant';
+import { Tags } from '../models/tags';
 
 const Container = styled(Flex)`
   position: absolute;
@@ -116,9 +117,10 @@ interface PlantAsideProps {
   open: boolean;
   onEditClick?: (plantId?: string) => void;
   onCloseClick?: () => void;
+  tags: Tags;
 }
 
-const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick }) => {
+const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick, tags }) => {
   return <Container flexDirection="column" open={open}>
     <Header alignItems="center" gap="spacingM">
       <HeaderBackContainer>
@@ -148,7 +150,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
       <UnderlinedSectionHeading marginBottom="spacingXs">Tags</UnderlinedSectionHeading>
       {plant ? <WrapStack spacing="spacingXs" alignItems="flex-start">
         {plant.tags.map(tag => (
-          <Pill key={tag} label={tag} />
+          <Pill key={tag} label={tags[tag]} />
         ))}
       </WrapStack> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Sources</UnderlinedSectionHeading>

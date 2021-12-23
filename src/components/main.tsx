@@ -30,6 +30,7 @@ import { Rectangle } from '../models/rectangle';
 import { generateRectangle } from '../lib/leaflet/generate-rectangle';
 import { entryToRectangle } from '../lib/contentful/entry-to-rectangle';
 import { RectangleEntry } from '../lib/contentful/rectangle-entry';
+import { useTags } from '../lib/use-tags';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -62,6 +63,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const [measurementLines, addMeasure, removeMeasurement] = useMeasurementGraph();
   const {mutate: updatePlantPosition} = useUpdatePlantMutation(cmaClient);
   const {mutate: updateRectangleCoords} = useUpdateRectangleCoordsMutation(cmaClient);
+  const tags = useTags(cdaClient);
   
   const openPlant = (plantId?: string) => {
     if (!plantId) {
@@ -161,7 +163,13 @@ const Main: FC<MainProps> = ({ sdk }) => {
     <Header>
       <EntriesSearch cdaClient={cdaClient} onEntryClick={searchEntryClicked} />
     </Header>
-    <PlantAside plant={selectedPlant} open={!!selectedPlant} onEditClick={openPlant} onCloseClick={() => setSelectedPlant(undefined)} />
+    <PlantAside 
+      plant={selectedPlant} 
+      open={!!selectedPlant} 
+      onEditClick={openPlant} 
+      onCloseClick={() => setSelectedPlant(undefined)} 
+      tags={tags}
+    />
     <EditorMap setMap={setMap}>
       {POLYGONS.map(polygon => (
         <Polygon key={polygon.label} positions={polygon.positions} pathOptions={polygon.pathOptions} renderer={fullRenderer} pmIgnore={true} />
