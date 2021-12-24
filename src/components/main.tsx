@@ -31,6 +31,8 @@ import { generateRectangle } from '../lib/leaflet/generate-rectangle';
 import { entryToRectangle } from '../lib/contentful/entry-to-rectangle';
 import { RectangleEntry } from '../lib/contentful/rectangle-entry';
 import { useTags } from '../lib/use-tags';
+import TagsAside from './tags-aside';
+import { useSelectedTags } from '../lib/use-selected-tags';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -64,6 +66,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const {mutate: updatePlantPosition} = useUpdatePlantMutation(cmaClient);
   const {mutate: updateRectangleCoords} = useUpdateRectangleCoordsMutation(cmaClient);
   const tags = useTags(cdaClient);
+  const [selectedTags, toggleTag] = useSelectedTags();
   
   const openPlant = (plantId?: string) => {
     if (!plantId) {
@@ -169,6 +172,12 @@ const Main: FC<MainProps> = ({ sdk }) => {
       onEditClick={openPlant} 
       onCloseClick={() => setSelectedPlant(undefined)} 
       tags={tags}
+      selectedTags={selectedTags}
+    />
+    <TagsAside 
+      tags={tags} 
+      selectedTags={selectedTags} 
+      toggleTag={toggleTag} 
     />
     <EditorMap setMap={setMap}>
       {POLYGONS.map(polygon => (
@@ -192,6 +201,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           selected={selectedPlant ? plant.id === selectedPlant.id : false}
           onClick={e => plantClicked(plant, e)}
           onPositionChange={newPosition => updatePlantPosition({...plant, position: [newPosition.lat, newPosition.lng]})}
+          selectedTags={selectedTags}
         />
       ))}
       {measurementLines.map(line => (

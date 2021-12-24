@@ -8,7 +8,6 @@ import {
   SectionHeading, 
   Text, 
   Stack, 
-  Pill, 
   List, 
   TextLink, 
   SkeletonContainer, 
@@ -18,14 +17,16 @@ import {
 import { CloseIcon, EditIcon } from '@contentful/f36-icons';
 import tokens from '@contentful/f36-tokens';
 import styled from '@emotion/styled';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { hostNameFromUrl } from '../lib/hostname-from-url';
 import { Plant } from '../models/plant';
+import { SelectedTag } from '../models/selected-tag';
 import { Tags } from '../models/tags';
+import ColoredPill from './colored-pill';
 
 const Container = styled(Flex)`
   position: absolute;
-  z-index: 10000;
+  z-index: 1000;
   right: 0;
   transform: ${props => props.open ? 'translateX(0%)' : 'translateX(100%)'};
   width: 380px;
@@ -118,9 +119,20 @@ interface PlantAsideProps {
   onEditClick?: (plantId?: string) => void;
   onCloseClick?: () => void;
   tags: Tags;
+  selectedTags: SelectedTag[];
 }
 
-const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick, tags }) => {
+const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick, tags, selectedTags }) => {
+  const getHueIndex = useCallback(tagId => {
+    const firstSelectedTag = selectedTags.find(t => t.id === tagId);
+
+    if (!firstSelectedTag) {
+      return null;
+    }
+
+    return firstSelectedTag.hueIndex;
+  }, [selectedTags]);
+
   return <Container flexDirection="column" open={open}>
     <Header alignItems="center" gap="spacingM">
       <HeaderBackContainer>
@@ -150,7 +162,12 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
       <UnderlinedSectionHeading marginBottom="spacingXs">Tags</UnderlinedSectionHeading>
       {plant ? <WrapStack spacing="spacingXs" alignItems="flex-start">
         {plant.tags.map(tag => (
-          <Pill key={tag} label={tags[tag]} />
+          <ColoredPill 
+            key={tag} 
+            label={tags[tag]} 
+            // @ts-ignore
+            hueIndex={getHueIndex(tag)}
+          />
         ))}
       </WrapStack> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Sources</UnderlinedSectionHeading>
