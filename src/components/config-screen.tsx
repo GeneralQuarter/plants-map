@@ -48,8 +48,6 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     // related to this app installation
     const currentState = await this.props.sdk.app.getCurrentState();
 
-    console.log(this.state);
-
     return {
       // Parameters to be persisted as the app configuration.
       parameters: this.state.parameters,

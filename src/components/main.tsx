@@ -1,6 +1,6 @@
 import { PageExtensionSDK } from '@contentful/app-sdk';
 import { Map, SVG } from 'leaflet';
-import { FC, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import POLYGONS from '../data/polygons';
 import POLYLINES from '../data/polylines';
 import { createCDAClient } from '../lib/contentful/create-cda-client';
@@ -33,6 +33,8 @@ import { RectangleEntry } from '../lib/contentful/rectangle-entry';
 import { useTags } from '../lib/use-tags';
 import TagsAside from './tags-aside';
 import { useSelectedTags } from '../lib/use-selected-tags';
+import { usePinPlantMutation } from '../lib/mutations/pin-plant.mutation';
+import { usePlantPlantMutation } from '../lib/mutations/plant-plant.mutation';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -61,12 +63,22 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const [map, setMap] = useState<Map | undefined>(undefined);
   const {data: plants} = usePlantsWithPositionQuery(cdaClient);
   const {data: rectangles} = useRectanglesWithCoordsQuery(cdaClient);
-  const [selectedPlant, setSelectedPlant] = useState<Plant | undefined>(undefined);
+  const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(undefined);
   const [measurementLines, addMeasure, removeMeasurement] = useMeasurementGraph();
   const {mutate: updatePlantPosition} = useUpdatePlantMutation(cmaClient);
   const {mutate: updateRectangleCoords} = useUpdateRectangleCoordsMutation(cmaClient);
+  const {mutate: _pinPlant} = usePinPlantMutation(cmaClient);
+  const {mutate: _plantPlant} = usePlantPlantMutation(cmaClient);
   const tags = useTags(cdaClient);
   const [selectedTags, toggleTag] = useSelectedTags();
+
+  const selectedPlant = useMemo(() => {
+    if (!plants) {
+      return undefined;
+    }
+
+    return plants.find(p => p.id === selectedPlantId);
+  }, [selectedPlantId, plants]);
   
   const openPlant = (plantId?: string) => {
     if (!plantId) {
@@ -78,7 +90,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
       queryClient.invalidateQueries(plantsWithPositionQueryKey);
 
       if (!entity?.fields.position) {
-        setSelectedPlant(undefined);
+        setSelectedPlantId(undefined);
       }
     })();
   }
@@ -90,7 +102,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
 
   const plantClicked = (plant: Plant, event: MouseEvent) => {
     if (!event.shiftKey) {
-      setSelectedPlant(plant);
+      setSelectedPlantId(plant.id);
       return;
     }
 
@@ -119,7 +131,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
       updatePlantPosition(newPlant);
     }
 
-    setSelectedPlant(newPlant);
+    setSelectedPlantId(newPlant.id);
 
     if (!newPlant.position) {
       return;
@@ -162,6 +174,41 @@ const Main: FC<MainProps> = ({ sdk }) => {
     }
   }
 
+  const pinPlant = useCallback(plantId => {
+    return new Promise(resolve => {
+      _pinPlant(plantId, {
+        onSettled: resolve
+      });
+    });
+  }, [_pinPlant]);
+
+  const plantPlant = useCallback((plantId: string, date: Date) => {
+    return new Promise(resolve => {
+      _plantPlant({plantId, date}, {
+        onSettled: resolve
+      });
+    });
+  }, [_plantPlant])
+
+  const quickActionClicked = useCallback(async (plantId: string, action: string, date?: Date) => {
+    try {
+      switch (action) {
+        case 'pin':
+          await pinPlant(plantId);
+          break;
+        case 'plant':
+          if (!date) {
+            break;
+          }
+
+          await plantPlant(plantId, date);
+          break;
+        default:
+          break;
+      }
+    } catch (e) {}
+  }, [pinPlant, plantPlant]);
+
   return <Container as="div">
     <Header>
       <EntriesSearch cdaClient={cdaClient} onEntryClick={searchEntryClicked} />
@@ -170,7 +217,8 @@ const Main: FC<MainProps> = ({ sdk }) => {
       plant={selectedPlant} 
       open={!!selectedPlant} 
       onEditClick={openPlant} 
-      onCloseClick={() => setSelectedPlant(undefined)} 
+      onCloseClick={() => setSelectedPlantId(undefined)} 
+      onQuickAction={quickActionClicked}
       tags={tags}
       selectedTags={selectedTags}
     />

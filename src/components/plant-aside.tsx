@@ -12,12 +12,14 @@ import {
   TextLink, 
   SkeletonContainer, 
   SkeletonDisplayText,
-  SkeletonBodyText, 
+  SkeletonBodyText,
+  TextInput,
+  formatMachineReadableDateTime, 
 } from '@contentful/f36-components';
 import { CloseIcon, EditIcon } from '@contentful/f36-icons';
 import tokens from '@contentful/f36-tokens';
 import styled from '@emotion/styled';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { hostNameFromUrl } from '../lib/hostname-from-url';
 import { Plant } from '../models/plant';
 import { SelectedTag } from '../models/selected-tag';
@@ -118,11 +120,12 @@ interface PlantAsideProps {
   open: boolean;
   onEditClick?: (plantId?: string) => void;
   onCloseClick?: () => void;
+  onQuickAction?: (plantId: string, action: string, date?: Date) => Promise<any>;
   tags: Tags;
   selectedTags: SelectedTag[];
 }
 
-const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick, tags, selectedTags }) => {
+const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick, onQuickAction, tags, selectedTags }) => {
   const getHueIndex = useCallback(tagId => {
     const firstSelectedTag = selectedTags.find(t => t.id === tagId);
 
@@ -132,6 +135,48 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
 
     return firstSelectedTag.hueIndex;
   }, [selectedTags]);
+
+  const hasTag = useCallback(tag => {
+    if (!plant) {
+      return false;
+    }
+
+    return plant.tags.includes(tag);
+  }, [plant]);
+
+  const isPlanted = hasTag('planted');
+  const isPinned = hasTag('jalonne');
+  const [quickActionLoading, setQuickActionnLoading] = useState<string | undefined>(undefined);
+  const [plantDate, setPlantDate] = useState<string>(formatMachineReadableDateTime(new Date(), 'day'));
+  const [plantTime, setPlantTime] = useState<string>('14:00');
+
+  const fullPlantDate = useMemo(() => {
+    if (!plantDate || !plantTime) {
+      return undefined;
+    }
+
+    return new Date(plantDate + 'T' + plantTime);
+  }, [plantDate, plantTime]);
+
+  const onQuickActionClicked = useCallback(action => {
+    return async () => {
+      if (!plant) {
+        return;
+      }
+
+      if (action === 'plant' && !fullPlantDate) {
+        return;
+      }
+  
+      setQuickActionnLoading(action);
+  
+      try {
+        await onQuickAction?.(plant.id, action, fullPlantDate);
+      } catch (e) {}
+  
+      setQuickActionnLoading(undefined);
+    }
+  }, [onQuickAction, plant, fullPlantDate]);
 
   return <Container flexDirection="column" open={open}>
     <Header alignItems="center" gap="spacingM">
@@ -148,6 +193,33 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
       </EditButton>
     </Header>
     <ContentContainer flexDirection="column" padding="spacingM">
+      {!isPlanted &&
+        <>
+          <UnderlinedSectionHeading marginBottom="spacingXs">Quick actions</UnderlinedSectionHeading>
+          <WrapStack spacing="spacingXs" alignItems="flex-start">
+            {!isPinned && <Button isFullWidth onClick={onQuickActionClicked('pin')} isDisabled={!!quickActionLoading} isLoading={quickActionLoading === 'pin'}>Pin</Button>}
+            <TextInput.Group>
+              <TextInput
+                value={plantDate}
+                aria-label="Plantation date"
+                id="plant-date"
+                //@ts-ignore
+                type="date"
+                onChange={e => setPlantDate(e.target.value)}
+              />
+              <TextInput
+                value={plantTime}
+                aria-label="Plantation time"
+                id="plant-time"
+                //@ts-ignore
+                type="time"
+                onChange={e => setPlantTime(e.target.value)}
+              />
+              <Button variant="positive" onClick={onQuickActionClicked('plant')} isDisabled={!!quickActionLoading} isLoading={quickActionLoading === 'plant'}>Plant</Button>
+            </TextInput.Group>
+          </WrapStack>
+        </>
+      }
       <UnderlinedSectionHeading marginBottom="spacingXs">Latin name</UnderlinedSectionHeading>
       {plant ? <Paragraph>{plant.fullLatinName}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Common name</UnderlinedSectionHeading>

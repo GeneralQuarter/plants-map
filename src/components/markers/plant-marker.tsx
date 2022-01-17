@@ -21,8 +21,18 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
   const [locked, setLocked] = useState(true);
   const [newPosition, setNewPosition] = useState<LatLng | null>(null);
 
-  const eventHandlers = {
+  const planted = useMemo(() => {
+    return plant.tags.includes('planted');
+  }, [plant.tags]);
+
+  const eventHandlers = useMemo(() => ({
     contextmenu() {
+      // disable dragging on planted trees
+      if (planted) {
+        setLocked(true);
+        return;
+      }
+
       if (!locked && newPosition) {
         onPositionChange?.(newPosition);
         setNewPosition(null);
@@ -40,7 +50,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     'pm:dragend': (e: {target: LeafletCircle}) => {
       setNewPosition(e.target.getLatLng());
     }
-  };
+  }), [locked, newPosition, planted, onClick, onPositionChange]);
 
   const updateShowLabel = () => {
     const circle = circleRef.current;
@@ -70,7 +80,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
 
     return colorFromHueIndex(firstSelectedTag.hueIndex, 1);
-  }, [plant.tags, selectedTags]);
+  }, [plant, selectedTags]);
 
   useMapEvent('moveend', updateShowLabel);
 

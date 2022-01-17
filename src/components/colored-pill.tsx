@@ -4,6 +4,7 @@ import { colorFromHueIndex } from '../lib/color-from-hue-index';
 
 const ColoredPill = styled(Pill)`
   overflow: hidden;
+  pointer-events: auto;
 
   &::before {
     content: " ";

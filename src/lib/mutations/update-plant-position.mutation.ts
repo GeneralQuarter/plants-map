@@ -9,7 +9,6 @@ export function useUpdatePlantMutation(cmaClient: PlainClientAPI) {
   const queryClient = useQueryClient();
 
   const updatePlantPosition = useCallback(async ({ id, position }: Plant) => {
-    console.log('GET');
     const entry = await cmaClient.entry.get({ entryId: id });
 
     if (!position) {
