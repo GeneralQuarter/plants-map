@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Circle, Tooltip, useMapEvent } from 'react-leaflet';
-import { Circle as LeafletCircle, LatLng, Renderer } from 'leaflet';
+import { Circle as LeafletCircle, LatLng, PathOptions, Renderer } from 'leaflet';
 import HeightTriangle from '../height-triangle';
 import { Plant } from '../../models/plant';
 import { SelectedTag } from '../../models/selected-tag';
@@ -13,9 +13,10 @@ export interface PlantMarkerProps {
   selected?: boolean;
   renderer: Renderer;
   selectedTags: SelectedTag[];
+  showOutlines?: boolean;
 }
 
-export default function PlantMarker({ plant, onPositionChange, onClick, selected, renderer, selectedTags }: PlantMarkerProps) {
+export default function PlantMarker({ plant, onPositionChange, onClick, selected, renderer, selectedTags, showOutlines }: PlantMarkerProps) {
   const circleRef = useRef<LeafletCircle | null>(null);
   const [showLabel, setShowlabel] = useState(false);
   const [locked, setLocked] = useState(true);
@@ -72,7 +73,15 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
   }
 
+  const isPlanted = useMemo(() => {
+    return plant.tags.includes('planted');
+  }, [plant.tags]);
+
   const fillColor = useMemo(() => {
+    if (isPlanted) {
+      return '#33691e';
+    }
+
     const firstSelectedTag = selectedTags.find(t => plant.tags.includes(t.id));
 
     if (!firstSelectedTag) {
@@ -80,7 +89,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
 
     return colorFromHueIndex(firstSelectedTag.hueIndex, 1);
-  }, [plant, selectedTags]);
+  }, [plant, selectedTags, isPlanted]);
 
   useMapEvent('moveend', updateShowLabel);
 
@@ -100,12 +109,38 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
   }, [circleRef, locked]);
 
-  const pathOptions = useMemo(() => {
+  const isPinned = useMemo(() => {
+    return plant.tags.includes('jalonne');
+  }, [plant.tags]);
+
+  const color = useMemo(() => {
+    if (selected) {
+      return `blue`;
+    }
+
+    if (isPlanted) {
+      return '#33691e';
+    }
+
+    if (showOutlines) {
+      if (!isPlanted && !isPinned) {
+        return `#a30000`;
+      }
+
+      if (!isPinned) {
+        return `#000051`;
+      }
+    }
+
+    return `gray`;
+  }, [selected, showOutlines, isPlanted, isPinned]);
+
+  const pathOptions = useMemo<PathOptions>(() => {
     return {
-      color: selected ? 'blue' : 'gray',
+      color,
       fillColor: !locked ? 'blue' : fillColor,
     }
-  }, [selected, locked, fillColor]);
+  }, [color, locked, fillColor]);
   
   return (
     <Circle center={plant.position ?? [0, 0]} 
@@ -113,7 +148,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
       ref={circleRef}
       eventHandlers={eventHandlers}
       pathOptions={pathOptions} 
-      weight={1} 
+      weight={1}
       renderer={renderer}>
       {showLabel && 
         <Tooltip direction="center" interactive={false} permanent={true} className="plant-label">

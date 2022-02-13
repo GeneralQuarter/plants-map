@@ -1,4 +1,4 @@
-import { Autocomplete, Collapse, Flex, Stack } from '@contentful/f36-components';
+import { Autocomplete, Collapse, Flex, Stack, Switch } from '@contentful/f36-components';
 import tokens from '@contentful/f36-tokens';
 import styled from '@emotion/styled';
 import { FC, useMemo, useState } from 'react';
@@ -30,9 +30,11 @@ interface TagsAsideProps {
   tags: Tags;
   selectedTags: SelectedTag[];
   toggleTag: (tagId: string) => void;
+  showOutlines: boolean;
+  setShowOutlines: (showOutlines: boolean) => void;
 }
 
-const TagsAside: FC<TagsAsideProps> = ({ tags, selectedTags, toggleTag }) => {
+const TagsAside: FC<TagsAsideProps> = ({ tags, selectedTags, toggleTag, showOutlines, setShowOutlines }) => {
   const [inputValue, setInputValue] = useState<string>('');
 
   const tagList = useMemo(() => {
@@ -52,7 +54,10 @@ const TagsAside: FC<TagsAsideProps> = ({ tags, selectedTags, toggleTag }) => {
   }, [tags, selectedTags]);
 
   return <Container flexDirection="column">
-    <Header alignItems="center">
+    <Header alignItems="flex-start" flexDirection="column" gap="spacingM">
+      <Switch isChecked={showOutlines} onChange={() => setShowOutlines(!showOutlines)}>
+        Show non pinned plants
+      </Switch>
       <Autocomplete 
         items={tagList}
         onInputValueChange={setInputValue}

@@ -71,6 +71,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const {mutate: _plantPlant} = usePlantPlantMutation(cmaClient);
   const tags = useTags(cdaClient);
   const [selectedTags, toggleTag] = useSelectedTags();
+  const [showOutlines, setShowOutlines] = useState<boolean>(true);
 
   const selectedPlant = useMemo(() => {
     if (!plants) {
@@ -225,7 +226,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
     <TagsAside 
       tags={tags} 
       selectedTags={selectedTags} 
-      toggleTag={toggleTag} 
+      toggleTag={toggleTag}
+      showOutlines={showOutlines}
+      setShowOutlines={setShowOutlines} 
     />
     <EditorMap setMap={setMap}>
       {POLYGONS.map(polygon => (
@@ -250,6 +253,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           onClick={e => plantClicked(plant, e)}
           onPositionChange={newPosition => updatePlantPosition({...plant, position: [newPosition.lat, newPosition.lng]})}
           selectedTags={selectedTags}
+          showOutlines={showOutlines}
         />
       ))}
       {measurementLines.map(line => (
