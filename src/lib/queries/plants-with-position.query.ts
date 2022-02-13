@@ -9,7 +9,7 @@ export const plantsWithPositionQueryKey = 'plants-with-position';
 export function usePlantsWithPositionQuery(cdaClient: ContentfulClientApi) {
   const fetchPlantsWithPosition = useCallback(async () => {
     const res = await getPlantsWithPosition(cdaClient);
-    return res.items;
+    return res.items.sort((a, b) => b.width - a.width);
   }, [cdaClient]);
 
   return useQuery<Plant[]>(plantsWithPositionQueryKey, fetchPlantsWithPosition, {refetchOnWindowFocus: false});

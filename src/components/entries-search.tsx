@@ -45,6 +45,15 @@ const entriesToGroupedEntries = (entries: Entry<unknown>[]): GroupedEntries => {
     groups[groupIndex].options.push(entry);
   }
 
+  const plantGroupIndex = contentTypeToGroupIndex.indexOf(ContentType.Plant);
+
+  groups[plantGroupIndex].options.sort((a, b) => {
+    const pA = (a as Entry<PlantFields>);
+    const pB = (b as Entry<PlantFields>);
+
+    return pA.fields.code.localeCompare(pB.fields.code);
+  });
+
   return groups;
 }
 
