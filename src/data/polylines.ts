@@ -71,10 +71,32 @@ const rawCoordinates: RawCoords = {
       46.37979407222222,
       104.4616153885371
     ]
+  ],
+  edge1: [
+    [0.88330368, 46.38026201, 0.157],
+    [0.88325492, 46.38029621, 0.225],
+    [0.88322326, 46.38033326, -0.022],
+    [0.88319588, 46.38035818, 0.103],
+    [0.88317756, 46.38038055, 0.075],
+    [0.88313635, 46.38042810, 0.065],
+    [0.88309535, 46.38047487, -0.119]
+  ],
+  edge2: [
+    [0.88281987, 46.38029194, -0.050],
+    [0.88286053, 46.38033018, -0.045],
+    [0.88289364, 46.38036899, -0.145],
+    [0.88293807, 46.38041127, 0.020],
+    [0.88297783, 46.38046908, -0.074]
+  ],
+  edge3: [
+    [0.88320636, 46.38025756, 0.061],
+    [0.88313711, 46.38028823, 0.099],
+    [0.88307046, 46.38037622, -0.072]
   ]
 };
 
 const highTensionLinePathOptions: PathOptions = { color: 'blue', opacity: 0.3, weight: 1 };
+const edgePathOptions: PathOptions = { color: 'indigo', fillOpacity: 0.2, dashArray: '2 4', weight: 2 };
 
 const POLYLINES: HardcodedMapObject[] = [
   {
@@ -102,6 +124,21 @@ const POLYLINES: HardcodedMapObject[] = [
     positions: rawCoordinates.highTensionLine3.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
     pathOptions: highTensionLinePathOptions
   },
+  {
+    label: 'Edge - 1',
+    positions: rawCoordinates.edge1.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
+    pathOptions: edgePathOptions
+  },
+  {
+    label: 'Edge - 2',
+    positions: rawCoordinates.edge2.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
+    pathOptions: edgePathOptions
+  },
+  {
+    label: 'Edge - 3',
+    positions: rawCoordinates.edge3.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
+    pathOptions: edgePathOptions
+  }
 ];
 
 export default POLYLINES;
