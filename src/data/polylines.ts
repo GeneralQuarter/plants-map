@@ -204,11 +204,72 @@ const rawCoordinates: RawCoords = {
     [0.88336456, 46.38036501, 0.015],
     [0.88323756, 46.38044582, -0.048],
     [0.88326433, 46.38052820, 0.239],
-  ]
+  ],
+  fence1: [
+    [0.88255908, 46.38047773, -0.143],
+    [0.88300868, 46.38052220, 0.096],
+  ],
+  fence2: [
+    [0.88306767, 46.38052901, 0.127],
+    [0.88352433, 46.38057418, 0.238],
+  ],
+  fence3: [
+    [0.88349417, 46.38061569, 0.293],
+    [0.88352433, 46.38057418, 0.238],
+    [0.88350440, 46.38052794, 0.040],
+  ],
+  fence4: [
+    [0.88362971, 46.38062693, 0.130],
+    [0.88361843, 46.38058201, -0.041],
+    [0.88354757, 46.38050559, -0.011],
+  ],
+  fence5: [
+    [0.88361843, 46.38058201, -0.041],
+    [0.88384652, 46.38060820, 0.094],
+  ],
+  fence6: [
+    [0.88390463, 46.38061417, -0.054],
+    [0.88413271, 46.38063868, 0.067],
+    [0.88425496, 46.38063051, 0.177],
+  ],
+  fence7: [
+    [0.88170346, 46.37952285, -0.856],
+    [0.88167676, 46.37941362, -0.778],
+    [0.88172019, 46.37932305, -0.747],
+    [0.88177037, 46.37932611, -0.724]
+  ],
+  fence8: [
+    [0.88183094, 46.37933261, -0.599],
+    [0.88202731, 46.37935092, -0.348],
+    [0.88225179, 46.37937399, -0.401],
+    [0.88244673, 46.37939000, -0.594]
+  ],
+  door1: [
+    [0.88300868, 46.38052220, 0.096],
+    [0.88306767, 46.38052901, 0.127]
+  ],
+  door2: [
+    [0.88350440, 46.38052794, 0.040],
+    [0.88354757, 46.38050559, -0.011]
+  ],
+  door3: [
+    [0.88384652, 46.38060820, 0.094],
+    [0.88390463, 46.38061417, -0.054]
+  ],
+  door4: [
+    [0.88177037, 46.37932611, -0.724],
+    [0.88180364, 46.37929575, -0.811]
+  ],
+  door5: [
+    [0.88183094, 46.37933261, -0.599],
+    [0.88180364, 46.37929575, -0.811]
+  ],
 };
 
 const highTensionLinePathOptions: PathOptions = { color: 'blue', opacity: 0.3, weight: 1 };
 const edgePathOptions: PathOptions = { color: 'indigo', fillOpacity: 0.2, dashArray: '2 4', weight: 2 };
+const fencePathOptions: PathOptions = { color: 'black', opacity: 0.4, weight: 2 };
+const doorPathOptions: PathOptions = { color: 'black', opacity: 0.4, dashArray: '2 6', weight: 2 };
 
 const edges: HardcodedMapObject[] = Object.entries(rawCoordinates)
   .filter(([key, _]) => key.startsWith('edge'))
@@ -216,6 +277,22 @@ const edges: HardcodedMapObject[] = Object.entries(rawCoordinates)
     label: `Edge - ${i + 1}`,
     positions: coords.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
     pathOptions: edgePathOptions
+  }));
+
+const fences: HardcodedMapObject[] = Object.entries(rawCoordinates)
+  .filter(([key, _]) => key.startsWith('fence'))
+  .map(([_, coords], i) => ({
+    label: `Fence - ${i + 1}`,
+    positions: coords.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
+    pathOptions: fencePathOptions
+  }));
+
+const doors: HardcodedMapObject[] = Object.entries(rawCoordinates)
+  .filter(([key, _]) => key.startsWith('door'))
+  .map(([_, coords], i) => ({
+    label: `Door - ${i + 1}`,
+    positions: coords.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
+    pathOptions: doorPathOptions
   }));
 
 const POLYLINES: HardcodedMapObject[] = [
@@ -244,7 +321,9 @@ const POLYLINES: HardcodedMapObject[] = [
     positions: rawCoordinates.highTensionLine3.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
     pathOptions: highTensionLinePathOptions
   },
-  ...edges
+  ...edges,
+  ...fences,
+  ...doors,
 ];
 
 export default POLYLINES;
