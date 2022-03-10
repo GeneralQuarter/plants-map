@@ -11,12 +11,13 @@ export interface PlantMarkerProps {
   onPositionChange?: (newPosition: LatLng) => void;
   onClick?: (event: MouseEvent) => void;
   selected?: boolean;
+  exportSelected?: boolean;
   renderer: Renderer;
   selectedTags: SelectedTag[];
   showOutlines?: boolean;
 }
 
-export default function PlantMarker({ plant, onPositionChange, onClick, selected, renderer, selectedTags, showOutlines }: PlantMarkerProps) {
+export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines }: PlantMarkerProps) {
   const circleRef = useRef<LeafletCircle | null>(null);
   const [showLabel, setShowlabel] = useState(false);
   const [locked, setLocked] = useState(true);
@@ -78,6 +79,10 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
   }, [plant.tags]);
 
   const fillColor = useMemo(() => {
+    if (exportSelected) {
+      return `teal`;
+    }
+
     if (isPlanted) {
       return '#33691e';
     }
@@ -89,7 +94,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
 
     return colorFromHueIndex(firstSelectedTag.hueIndex, 1);
-  }, [plant, selectedTags, isPlanted]);
+  }, [plant, selectedTags, isPlanted, exportSelected]);
 
   useMapEvent('moveend', updateShowLabel);
 

@@ -35,6 +35,11 @@ import TagsAside from './tags-aside';
 import { useSelectedTags } from '../lib/use-selected-tags';
 import { usePinPlantMutation } from '../lib/mutations/pin-plant.mutation';
 import { usePlantPlantMutation } from '../lib/mutations/plant-plant.mutation';
+import PointsLoader from './points-loader';
+import { MeasuredPoint } from '../models/measured-point';
+import MeasuredPointMarker from './markers/measured-point-marker';
+import PointsExport from './points-export';
+import { useExportedIds } from '../lib/use-exported-ids';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -72,6 +77,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const tags = useTags(cdaClient);
   const [selectedTags, toggleTag] = useSelectedTags();
   const [showOutlines, setShowOutlines] = useState<boolean>(true);
+  const [measuredPoints, setMeasuredPoints] = useState<MeasuredPoint[]>([]);
+  const [isExportSelecting, setIsExportSelecting] = useState<boolean>(false);
+  const [exportedIds, toggleExportedIds, clearExportedIds] = useExportedIds();
 
   const selectedPlant = useMemo(() => {
     if (!plants) {
@@ -102,6 +110,11 @@ const Main: FC<MainProps> = ({ sdk }) => {
   }
 
   const plantClicked = (plant: Plant, event: MouseEvent) => {
+    if (isExportSelecting) {
+      toggleExportedIds(plant.id);
+      return;
+    }
+
     if (!event.shiftKey) {
       setSelectedPlantId(plant.id);
       return;
@@ -213,6 +226,14 @@ const Main: FC<MainProps> = ({ sdk }) => {
   return <Container as="div">
     <Header>
       <EntriesSearch cdaClient={cdaClient} onEntryClick={searchEntryClicked} />
+      <PointsLoader setMeasuredPoints={setMeasuredPoints} />
+      <PointsExport 
+        exportedIds={exportedIds} 
+        isExportSelecting={isExportSelecting} 
+        setIsExportSelecting={setIsExportSelecting} 
+        plants={plants}
+        clearExportedIds={clearExportedIds}
+      />
     </Header>
     <PlantAside 
       plant={selectedPlant} 
@@ -237,23 +258,27 @@ const Main: FC<MainProps> = ({ sdk }) => {
       {POLYLINES.map(polyline => (
         <Polyline key={polyline.label} positions={polyline.positions} pathOptions={polyline.pathOptions} renderer={fullRenderer} pmIgnore={true} />
       ))}
-      {rectangles && rectangles.map(rectangle => (
-        <RectangleMarker key={rectangle.id}
-          rectangle={rectangle}
-          onCoordsChange={newCoords => updateRectangleCoords({...rectangle, coords: newCoords})}
-          renderer={fullRenderer}
-          onClick={() => openRectangle(rectangle.id)}
-        />
+      {measuredPoints.map(point => (
+        <MeasuredPointMarker key={point.name} point={point} renderer={fullRenderer} />
       ))}
       {plants && plants.map(plant => (
         <PlantMarker key={plant.id}
           plant={plant}
           renderer={fullRenderer}
           selected={selectedPlant ? plant.id === selectedPlant.id : false}
+          exportSelected={exportedIds.includes(plant.id)}
           onClick={e => plantClicked(plant, e)}
           onPositionChange={newPosition => updatePlantPosition({...plant, position: [newPosition.lat, newPosition.lng]})}
           selectedTags={selectedTags}
           showOutlines={showOutlines}
+        />
+      ))}
+      {rectangles && rectangles.map(rectangle => (
+        <RectangleMarker key={rectangle.id}
+          rectangle={rectangle}
+          onCoordsChange={newCoords => updateRectangleCoords({...rectangle, coords: newCoords})}
+          renderer={fullRenderer}
+          onClick={() => openRectangle(rectangle.id)}
         />
       ))}
       {measurementLines.map(line => (
