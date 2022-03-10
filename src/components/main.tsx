@@ -273,7 +273,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           showOutlines={showOutlines}
         />
       ))}
-      {rectangles && rectangles.map(rectangle => (
+      {rectangles && plants && rectangles.map(rectangle => (
         <RectangleMarker key={rectangle.id}
           rectangle={rectangle}
           onCoordsChange={newCoords => updateRectangleCoords({...rectangle, coords: newCoords})}
