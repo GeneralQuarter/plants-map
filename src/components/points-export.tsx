@@ -1,5 +1,4 @@
 import { IconButton } from '@contentful/f36-components';
-import styled from '@emotion/styled';
 import saveAs from 'file-saver';
 import { unparse } from 'papaparse';
 import { FC } from 'react';
