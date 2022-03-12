@@ -88,7 +88,7 @@ const RectangleMarker: FC<RectangleMarkerProps> = ({ rectangle, onCoordsChange, 
     renderer={renderer}
   >
     <Tooltip direction="center" className="rectangle-label">
-      <span className="label">{rectangle.label}</span>
+      <span className="label"><b>{rectangle.code}</b><br/>{rectangle.label}</span>
       <div className="dimensions">{rectangleDimensions(rectangle)}</div>
     </Tooltip>
   </Polygon>;

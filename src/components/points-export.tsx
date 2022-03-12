@@ -7,8 +7,8 @@ import ImportIcon from './icons/import.icon';
 
 interface EmlidRow {
   Name: string;
-  Easting: string;
-  Northing: string;
+  Longitude: string;
+  Latitude: string;
   Elevation: string;
 }
 
@@ -32,13 +32,13 @@ const PointsExport: FC<PointsExportProps> = ({ exportedIds, isExportSelecting, s
       .filter(n => !!n)
       .map(p => ({
         Name: p?.code ?? '',
-        Easting: p?.position?.[1].toFixed(8) ?? '',
-        Northing: p?.position?.[0].toFixed(8) ?? '',
+        Longitude: p?.position?.[1].toFixed(8) ?? '',
+        Latitude: p?.position?.[0].toFixed(8) ?? '',
         Elevation: '0.0',
       }));
 
     const csv = unparse<EmlidRow>(rows);
-    saveAs(new Blob([csv], {type: 'text/csv;charset=utf-8;'}), `exported-points-${new Date().toISOString()}.csv`);
+    saveAs(new Blob([csv], {type: 'text/csv;charset=utf-8;'}), `exported-points-${Date.now()}.csv`);
     // clearExportedIds();
     setIsExportSelecting(false);
   }
