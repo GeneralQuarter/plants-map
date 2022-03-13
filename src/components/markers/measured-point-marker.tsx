@@ -14,7 +14,7 @@ const MeasuredPointMarker: FC<MeasuredPointMarkerProps> = ({ point, renderer }) 
   }, [point.height]);
 
   return <CircleMarker center={point.coords} radius={0.5} renderer={renderer} fillColor={fillColor} color={fillColor}>
-    <Tooltip>{point.name}</Tooltip>
+    <Tooltip className="measured-point-label"><b>{point.name}</b><br />{point.height.toFixed(3)}m</Tooltip>
   </CircleMarker>;
 }
 
