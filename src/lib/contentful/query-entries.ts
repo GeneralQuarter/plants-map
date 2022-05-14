@@ -1,7 +1,7 @@
 import { ContentfulClientApi } from 'contentful';
 
 export async function queryEntries(client: ContentfulClientApi, query: string) {
-  return client.getEntries({
+  return client.withoutUnresolvableLinks.getEntries({
     query,
     limit: 40,
   });

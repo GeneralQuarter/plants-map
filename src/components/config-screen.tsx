@@ -75,7 +75,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
                 }
               })
             }} />
-          <FormControl.HelpText>Please enter CDA Acess Token</FormControl.HelpText>
+          <FormControl.HelpText>Please enter CDA Access Token</FormControl.HelpText>
         </FormControl>
       </Form>
     );

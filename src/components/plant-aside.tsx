@@ -111,8 +111,8 @@ const FadedList = styled(List)`
   }
 `;
 
-const OneLineSkeleton: FC<{noMarginBotton?: boolean}> = ({ noMarginBotton }) => {
-  return <SkeletonContainer style={{ height: '21px', marginBottom: noMarginBotton ? 0 : tokens.spacingS }} height="21px"><SkeletonBodyText numberOfLines={1} /></SkeletonContainer>
+const OneLineSkeleton: FC<{noMarginButton?: boolean}> = ({ noMarginButton }) => {
+  return <SkeletonContainer style={{ height: '21px', marginBottom: noMarginButton ? 0 : tokens.spacingS }} height="21px"><SkeletonBodyText numberOfLines={1} /></SkeletonContainer>
 }
 
 interface PlantAsideProps {
@@ -126,7 +126,7 @@ interface PlantAsideProps {
 }
 
 const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClick, onQuickAction, tags, selectedTags }) => {
-  const getHueIndex = useCallback(tagId => {
+  const getHueIndex = useCallback((tagId: string) => {
     const firstSelectedTag = selectedTags.find(t => t.id === tagId);
 
     if (!firstSelectedTag) {
@@ -136,7 +136,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
     return firstSelectedTag.hueIndex;
   }, [selectedTags]);
 
-  const hasTag = useCallback(tag => {
+  const hasTag = useCallback((tag: string) => {
     if (!plant) {
       return false;
     }
@@ -146,7 +146,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
 
   const isPlanted = hasTag('planted');
   const isPinned = hasTag('jalonne');
-  const [quickActionLoading, setQuickActionnLoading] = useState<string | undefined>(undefined);
+  const [quickActionLoading, setQuickActionLoading] = useState<string | undefined>(undefined);
   const [plantDate, setPlantDate] = useState<string>(formatMachineReadableDateTime(new Date(), 'day'));
   const [plantTime, setPlantTime] = useState<string>('14:00');
 
@@ -158,7 +158,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
     return new Date(plantDate + 'T' + plantTime);
   }, [plantDate, plantTime]);
 
-  const onQuickActionClicked = useCallback(action => {
+  const onQuickActionClicked = useCallback((action: string) => {
     return async () => {
       if (!plant) {
         return;
@@ -168,13 +168,13 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
         return;
       }
   
-      setQuickActionnLoading(action);
+      setQuickActionLoading(action);
   
       try {
         await onQuickAction?.(plant.id, action, fullPlantDate);
       } catch (e) {}
   
-      setQuickActionnLoading(undefined);
+      setQuickActionLoading(undefined);
     }
   }, [onQuickAction, plant, fullPlantDate]);
 
@@ -227,7 +227,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
       <UnderlinedSectionHeading marginBottom="spacingXs">Fully grown size</UnderlinedSectionHeading>
       {plant ? <ValueParagraph marginBottom="none">
         {plant.height}&nbsp;m x {plant.width}&nbsp;m
-      </ValueParagraph> : <OneLineSkeleton noMarginBotton />}
+      </ValueParagraph> : <OneLineSkeleton noMarginButton />}
       <HelperText marginBottom="spacingM">
         height x diameter
       </HelperText>

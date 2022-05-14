@@ -9,14 +9,14 @@ interface MeasurementPolylineProps {
   tooltipClick?: () => void;
 }
 
-const measurementPathoptions: PathOptions = { color: 'purple', dashArray: '3', weight: 1 };
+const measurementPathOptions: PathOptions = { color: 'purple', dashArray: '3', weight: 1 };
 
 const MeasurementPolyline: FC<MeasurementPolylineProps> = ({ line, tooltipClick }) => {
   const distance = useMemo(() => {
     return distanceTo(line.start, line.end).toFixed(2);
   }, [line.start, line.end]);
 
-  return <Polyline positions={[line.start, line.end]} pathOptions={measurementPathoptions}>
+  return <Polyline positions={[line.start, line.end]} pathOptions={measurementPathOptions}>
     <Tooltip direction="center" interactive={true} permanent={true}>
       <div onClick={() => {tooltipClick?.()}}>{distance}&nbsp;m</div>
     </Tooltip>

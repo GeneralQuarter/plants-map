@@ -10,11 +10,6 @@ interface EditorMapProps {
 }
 
 const EditorMap: FC<PropsWithChildren<EditorMapProps>> = ({ children, setMap }) => {
-  const whenCreated = (map: Map) => {
-    addSmoothWheelZoom(map);
-    setMap(map);
-  }
-
   return <MapContainer
     center={initialCenter}
     zoom={17}
@@ -23,7 +18,14 @@ const EditorMap: FC<PropsWithChildren<EditorMapProps>> = ({ children, setMap }) 
     scrollWheelZoom={false}
     doubleClickZoom={false}
     zoomControl={false}
-    whenCreated={whenCreated}
+    ref={(map: Map | null) => {
+      if (!map) {
+        return;
+      }
+
+      addSmoothWheelZoom(map);
+      setMap(map);
+    }}
   >
     {children}
   </MapContainer>;

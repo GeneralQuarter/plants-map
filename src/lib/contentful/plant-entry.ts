@@ -1,4 +1,4 @@
-import { Entry, EntryFields } from 'contentful';
+import { EntryFields, EntryWithLinkResolutionAndWithoutUnresolvableLinks } from 'contentful';
 import { PlantCommonInfoEntry } from './plant-common-info-entry';
 
 export interface PlantFields {
@@ -7,4 +7,4 @@ export interface PlantFields {
   position?: {lat: number, lon: number};
 }
 
-export interface PlantEntry extends Entry<PlantFields> {}
+export interface PlantEntry extends EntryWithLinkResolutionAndWithoutUnresolvableLinks<PlantFields> {}

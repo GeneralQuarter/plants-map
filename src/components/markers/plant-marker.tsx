@@ -19,7 +19,7 @@ export interface PlantMarkerProps {
 
 export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines }: PlantMarkerProps) {
   const circleRef = useRef<LeafletCircle | null>(null);
-  const [showLabel, setShowlabel] = useState(false);
+  const [showLabel, setShowLabel] = useState(false);
   const [locked, setLocked] = useState(true);
   const [newPosition, setNewPosition] = useState<LatLng | null>(null);
 
@@ -65,11 +65,11 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
 
     if (width >= 72) {
       if (!showLabel) {
-        setShowlabel(true);
+        setShowLabel(true);
       }
     } else {
       if (showLabel) {
-        setShowlabel(false)
+        setShowLabel(false)
       }
     }
   }

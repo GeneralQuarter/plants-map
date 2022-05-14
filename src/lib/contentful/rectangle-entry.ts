@@ -1,4 +1,4 @@
-import { Entry, EntryFields } from 'contentful';
+import { EntryWithLinkResolutionAndWithoutUnresolvableLinks, EntryFields } from 'contentful';
 
 export interface RectangleFields {
   label: EntryFields.Symbol;
@@ -8,4 +8,4 @@ export interface RectangleFields {
   coords?: [lat: number, lon: number][];
 }
 
-export interface RectangleEntry extends Entry<RectangleFields> {}
+export interface RectangleEntry extends EntryWithLinkResolutionAndWithoutUnresolvableLinks<RectangleFields> {}

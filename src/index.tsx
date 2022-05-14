@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import {
   AppExtensionSDK,
@@ -15,7 +15,7 @@ import Config from './components/config-screen';
 import Page from './components/page';
 
 init((sdk) => {
-  const root = document.getElementById('root');
+  const root = createRoot(document.getElementById('root')!);
 
   const ComponentLocationSettings = [
     {
@@ -30,7 +30,7 @@ init((sdk) => {
 
   ComponentLocationSettings.forEach((componentLocationSetting) => {
     if (sdk.location.is(componentLocationSetting.location)) {
-      render(componentLocationSetting.component, root);
+      root.render(componentLocationSetting.component);
     }
   });
 });

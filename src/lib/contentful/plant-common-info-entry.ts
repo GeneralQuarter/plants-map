@@ -1,4 +1,4 @@
-import { Entry, EntryFields } from 'contentful';
+import { EntryFields, EntryWithLinkResolutionAndWithUnresolvableLinks } from 'contentful';
 
 export interface PlantCommonInfoFields {
   genus: EntryFields.Symbol;
@@ -11,4 +11,4 @@ export interface PlantCommonInfoFields {
   sourceLinks: EntryFields.Symbol[];
 }
 
-export interface PlantCommonInfoEntry extends Entry<PlantCommonInfoFields> {}
+export interface PlantCommonInfoEntry extends EntryWithLinkResolutionAndWithUnresolvableLinks<PlantCommonInfoFields> {}

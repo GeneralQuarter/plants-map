@@ -4,7 +4,7 @@ import { entryToPlant } from './entry-to-plant';
 import { PlantFields } from './plant-entry';
 
 export async function getPlantsWithPosition(client: ContentfulClientApi) {
-  const collection = await client.getEntries<PlantFields>({
+  const collection = await client.withoutUnresolvableLinks.getEntries<PlantFields>({
     content_type: 'plant',
     limit: 1000,
     'fields.position[exists]': true

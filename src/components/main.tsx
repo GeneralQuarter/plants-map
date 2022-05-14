@@ -188,7 +188,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
     }
   }
 
-  const pinPlant = useCallback(plantId => {
+  const pinPlant = useCallback((plantId: string) => {
     return new Promise(resolve => {
       _pinPlant(plantId, {
         onSettled: resolve

@@ -13,8 +13,10 @@ const queryClient = new QueryClient();
 
 const Page = ({ sdk }: PageProps) => {
   return <QueryClientProvider client={queryClient}>
-    <GlobalStyles />
-    <Main sdk={sdk} />
+    <>
+      <GlobalStyles />
+      <Main sdk={sdk} />
+    </>
   </QueryClientProvider>;
 };
 
