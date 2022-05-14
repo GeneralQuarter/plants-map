@@ -24,7 +24,7 @@ import { entryToPlant } from '../lib/contentful/entry-to-plant';
 import { PlantEntry } from '../lib/contentful/plant-entry';
 import { useQueryClient } from 'react-query';
 import { rectanglesWithCoordsQueryKey, useRectanglesWithCoordsQuery } from '../lib/queries/rectangles-with-coords.query';
-import RectangleMarker from './/markers/rectangle-marker';
+import RectangleMarker from './markers/rectangle-marker';
 import { useUpdateRectangleCoordsMutation } from '../lib/mutations/update-rectangle-coords.mutation';
 import { Rectangle } from '../models/rectangle';
 import { generateRectangle } from '../lib/leaflet/generate-rectangle';
@@ -40,6 +40,8 @@ import { MeasuredPoint } from '../models/measured-point';
 import MeasuredPointMarker from './markers/measured-point-marker';
 import PointsExport from './points-export';
 import { useExportedIds } from '../lib/use-exported-ids';
+import { useHedges } from '../lib/queries/hedges.query';
+import HedgePolyline from './markers/hedge-polyline';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -68,6 +70,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const [map, setMap] = useState<Map | undefined>(undefined);
   const {data: plants} = usePlantsWithPositionQuery(cdaClient);
   const {data: rectangles} = useRectanglesWithCoordsQuery(cdaClient);
+  const {data: hedges} = useHedges(cdaClient);
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(undefined);
   const [measurementLines, addMeasure, removeMeasurement] = useMeasurementGraph();
   const {mutate: updatePlantPosition} = useUpdatePlantMutation(cmaClient);
@@ -260,6 +263,12 @@ const Main: FC<MainProps> = ({ sdk }) => {
       ))}
       {measuredPoints.map(point => (
         <MeasuredPointMarker key={point.name} point={point} renderer={fullRenderer} />
+      ))}
+      {hedges && hedges.map(hedge => (
+        <HedgePolyline key={hedge.id} 
+          hedge={hedge}
+          renderer={fullRenderer}
+        />
       ))}
       {plants && plants.map(plant => (
         <PlantMarker key={plant.id}
