@@ -6,14 +6,21 @@ import { MeasuredPoint } from '../../models/measured-point';
 interface MeasuredPointMarkerProps {
   point: MeasuredPoint;
   renderer: Renderer;
+  onClick?: () => void;
 }
 
-const MeasuredPointMarker: FC<MeasuredPointMarkerProps> = ({ point, renderer }) => {
+const MeasuredPointMarker: FC<MeasuredPointMarkerProps> = ({ point, renderer, onClick }) => {
   const fillColor = useMemo(() => {
     return point.height > 10 ? 'orange' : 'blue';
   }, [point.height]);
 
-  return <CircleMarker center={point.coords} radius={0.5} renderer={renderer} fillColor={fillColor} color={fillColor}>
+  const eventHandlers = useMemo(() => ({
+    click: () => {
+      onClick?.();
+    }
+  }), [onClick]);
+
+  return <CircleMarker center={point.coords} radius={0.5} renderer={renderer} fillColor={fillColor} color={fillColor} eventHandlers={eventHandlers}>
     <Tooltip className="measured-point-label"><b>{point.name}</b><br />{point.height.toFixed(3)}m</Tooltip>
   </CircleMarker>;
 }

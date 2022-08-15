@@ -1,1 +1,1 @@
-export type LatLngAlt = [number, number, number];
+export type LatLngAlt = [number, number, number?];

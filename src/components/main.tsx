@@ -15,7 +15,7 @@ import PlantMarker from './markers/plant-marker';
 import PlantAside from './plant-aside';
 import { Entry } from 'contentful';
 import styled from '@emotion/styled';
-import { Box } from '@contentful/f36-components';
+import { Box, Switch } from '@contentful/f36-components';
 import { Polygon, Polyline } from 'react-leaflet';
 import { plantsWithPositionQueryKey, usePlantsWithPositionQuery } from '../lib/queries/plants-with-position.query';
 import { createCMAClient } from '../lib/contentful/create-cma-client';
@@ -31,7 +31,6 @@ import { generateRectangle } from '../lib/leaflet/generate-rectangle';
 import { entryToRectangle } from '../lib/contentful/entry-to-rectangle';
 import { RectangleEntry } from '../lib/contentful/rectangle-entry';
 import { useTags } from '../lib/use-tags';
-import TagsAside from './tags-aside';
 import { useSelectedTags } from '../lib/use-selected-tags';
 import { usePinPlantMutation } from '../lib/mutations/pin-plant.mutation';
 import { usePlantPlantMutation } from '../lib/mutations/plant-plant.mutation';
@@ -42,6 +41,8 @@ import PointsExport from './points-export';
 import { useExportedIds } from '../lib/use-exported-ids';
 import { useHedges } from '../lib/queries/hedges.query';
 import HedgePolyline from './markers/hedge-polyline';
+import LeftAside from './left-aside';
+import TagsSelector from './tags-selector';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -80,7 +81,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const tags = useTags(cdaClient);
   const [selectedTags, toggleTag] = useSelectedTags();
   const [showOutlines, setShowOutlines] = useState<boolean>(true);
+  const [showLabels, setShowLabels] = useState<boolean>(true);
   const [measuredPoints, setMeasuredPoints] = useState<MeasuredPoint[]>([]);
+  const [selectedMeasuredPoint, setSelectedMeasuredPoint] = useState<MeasuredPoint | undefined>(undefined);
   const [isExportSelecting, setIsExportSelecting] = useState<boolean>(false);
   const [exportedIds, toggleExportedIds, clearExportedIds] = useExportedIds();
 
@@ -132,6 +135,20 @@ const Main: FC<MainProps> = ({ sdk }) => {
     }
     
     addMeasure({id: selectedPlant.id, position: selectedPlant.position}, {id: plant.id, position: plant.position});
+  }
+
+  const measuredPointClick = (measuredPoint: MeasuredPoint) => {
+    if (!selectedMeasuredPoint) {
+      setSelectedMeasuredPoint(measuredPoint);
+      return;
+    }
+
+    if (selectedMeasuredPoint.name === measuredPoint.name) {
+      return;
+    }
+
+    addMeasure({id: selectedMeasuredPoint.name, position: selectedMeasuredPoint.coords}, {id: measuredPoint.name, position: measuredPoint.coords});
+    setSelectedMeasuredPoint(undefined);
   }
 
   const searchPlantClicked = async (plant: Plant) => {
@@ -247,13 +264,19 @@ const Main: FC<MainProps> = ({ sdk }) => {
       tags={tags}
       selectedTags={selectedTags}
     />
-    <TagsAside 
-      tags={tags} 
-      selectedTags={selectedTags} 
-      toggleTag={toggleTag}
-      showOutlines={showOutlines}
-      setShowOutlines={setShowOutlines} 
-    />
+    <LeftAside padding="spacingM" flexDirection="column" gap="spacingM">
+      <Switch isChecked={showLabels} onChange={() => setShowLabels(!showLabels)}>
+        Show plant labels
+      </Switch>
+      <Switch isChecked={showOutlines} onChange={() => setShowOutlines(!showOutlines)}>
+        Show non pinned plants
+      </Switch>
+      <TagsSelector 
+        tags={tags} 
+        selectedTags={selectedTags} 
+        toggleTag={toggleTag}
+      />
+    </LeftAside>
     <EditorMap setMap={setMap}>
       {POLYGONS.map(polygon => (
         <Polygon key={polygon.label} positions={polygon.positions} pathOptions={polygon.pathOptions} renderer={fullRenderer} pmIgnore={true} />
@@ -262,7 +285,11 @@ const Main: FC<MainProps> = ({ sdk }) => {
         <Polyline key={polyline.label} positions={polyline.positions} pathOptions={polyline.pathOptions} renderer={fullRenderer} pmIgnore={true} />
       ))}
       {measuredPoints.map(point => (
-        <MeasuredPointMarker key={point.name} point={point} renderer={fullRenderer} />
+        <MeasuredPointMarker key={point.name} 
+          point={point}
+          renderer={fullRenderer}
+          onClick={() => measuredPointClick(point)}
+        />
       ))}
       {hedges && hedges.map(hedge => (
         <HedgePolyline key={hedge.id} 
@@ -280,6 +307,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           onPositionChange={newPosition => updatePlantPosition({...plant, position: [newPosition.lat, newPosition.lng]})}
           selectedTags={selectedTags}
           showOutlines={showOutlines}
+          showLabels={showLabels}
         />
       ))}
       {rectangles && plants && rectangles.map(rectangle => (

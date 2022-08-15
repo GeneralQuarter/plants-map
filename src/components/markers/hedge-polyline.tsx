@@ -15,11 +15,14 @@ const HedgePolyline: FC<HedgePolylineProps> = ({ hedge, renderer }) => {
   const [lat, setLat] = useState<number>(43);
   const [zoom, setZoom] = useState<number>(17);
   const weight = useMemo(() => {
-    console.log('calculate wright');
     return HEDGE_WIDTH / metersPerPixel(lat, zoom);
   }, [lat, zoom]);
 
   useMapEvent('moveend', (e) => {
+    if (!e.target._lastCenter) {
+      return;
+    }
+    
     setLat(e.target._lastCenter.lat);
     setZoom(e.target._zoom);
   });

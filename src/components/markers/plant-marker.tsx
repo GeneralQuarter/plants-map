@@ -15,11 +15,12 @@ export interface PlantMarkerProps {
   renderer: Renderer;
   selectedTags: SelectedTag[];
   showOutlines?: boolean;
+  showLabels?: boolean;
 }
 
-export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines }: PlantMarkerProps) {
+export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines, showLabels }: PlantMarkerProps) {
   const circleRef = useRef<LeafletCircle | null>(null);
-  const [showLabel, setShowLabel] = useState(false);
+  const [labelFits, setLabelFits] = useState(false);
   const [locked, setLocked] = useState(true);
   const [newPosition, setNewPosition] = useState<LatLng | null>(null);
 
@@ -54,7 +55,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
   }), [locked, newPosition, planted, onClick, onPositionChange]);
 
-  const updateShowLabel = () => {
+  const updateLabelFits = () => {
     const circle = circleRef.current;
 
     if (!circle) {
@@ -64,12 +65,12 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     const { width } = (circle as any)._path.getBoundingClientRect();
 
     if (width >= 72) {
-      if (!showLabel) {
-        setShowLabel(true);
+      if (!labelFits) {
+        setLabelFits(true);
       }
     } else {
-      if (showLabel) {
-        setShowLabel(false)
+      if (labelFits) {
+        setLabelFits(false);
       }
     }
   }
@@ -96,7 +97,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     return colorFromHueIndex(firstSelectedTag.hueIndex, 1);
   }, [plant, selectedTags, isPlanted, exportSelected]);
 
-  useMapEvent('moveend', updateShowLabel);
+  useMapEvent('moveend', updateLabelFits);
 
   useEffect(() => {
     const circle = circleRef.current;
@@ -146,6 +147,10 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
       fillColor: !locked ? 'blue' : fillColor,
     }
   }, [color, locked, fillColor]);
+
+  const renderLabel = useMemo(() => {
+    return labelFits && showLabels;
+  }, [labelFits, showLabels])
   
   return (
     <Circle center={plant.position ?? [0, 0]} 
@@ -155,7 +160,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
       pathOptions={pathOptions} 
       weight={1}
       renderer={renderer}>
-      {showLabel && 
+      {renderLabel && 
         <Tooltip direction="center" interactive={false} permanent={true} className="plant-label">
           <div className="code">{plant.code}</div>
           <div className="height">{plant.height}</div>
