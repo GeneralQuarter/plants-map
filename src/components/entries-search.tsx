@@ -1,4 +1,4 @@
-import { Autocomplete, Flex, GenericGroupType } from '@contentful/f36-components';
+import { Autocomplete, Flex } from '@contentful/f36-components';
 import { ContentfulClientApi, Entry } from 'contentful';
 import { FC, useEffect, useState } from 'react';
 import { PlantFields } from '../lib/contentful/plant-entry';
@@ -12,6 +12,11 @@ import { useDebounce } from '../lib/use-debounce';
 interface EntriesSearchProps {
   cdaClient: ContentfulClientApi;
   onEntryClick?: (entry: Entry<unknown>) => void;
+}
+
+interface GenericGroupType<T> {
+  groupTitle: string;
+  options: T[];
 }
 
 type EntryGroupType<T> = GenericGroupType<Entry<T>>;

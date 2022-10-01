@@ -4,6 +4,7 @@ import { PlantCommonInfoEntry } from './plant-common-info-entry';
 export interface PlantFields {
   commonInfo: PlantCommonInfoEntry;
   code: EntryFields.Symbol;
+  sponsor: EntryFields.Symbol;
   position?: {lat: number, lon: number};
 }
 

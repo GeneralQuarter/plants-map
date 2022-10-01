@@ -224,6 +224,8 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
       {plant ? <Paragraph>{plant.fullLatinName}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Common name</UnderlinedSectionHeading>
       {plant ? <Paragraph>{plant.commonName}</Paragraph> : <OneLineSkeleton />}
+      <UnderlinedSectionHeading marginBottom="spacingXs">Sponsor</UnderlinedSectionHeading>
+      {plant ? <Paragraph>{plant.sponsor || <Text as="i" fontColor="gray500">No sponsor</Text>}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Fully grown size</UnderlinedSectionHeading>
       {plant ? <ValueParagraph marginBottom="none">
         {plant.height}&nbsp;m x {plant.width}&nbsp;m

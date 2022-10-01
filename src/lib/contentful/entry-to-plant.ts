@@ -10,6 +10,7 @@ export function entryToPlant(entry: PlantEntry): Plant {
     commonName: entry.fields.commonInfo?.fields.commonName ?? '',
     height: entry.fields.commonInfo?.fields.height ?? 1,
     code: entry.fields.code,
+    sponsor: entry.fields.sponsor ?? '',
     position: entry.fields.position ? [
       entry.fields.position.lat,
       entry.fields.position.lon
