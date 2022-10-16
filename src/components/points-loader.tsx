@@ -4,6 +4,10 @@ import { ChangeEvent, FC, useRef } from 'react';
 import { parse } from 'papaparse';
 import { MeasuredPoint } from '../models/measured-point';
 import ExportIcon from './icons/export.icon';
+import { useQueryClient } from 'react-query';
+import { Plant } from '../models/plant';
+import { plantsWithPositionQueryKey } from '../lib/queries/plants-with-position.query';
+import { MARKED_TAG_ID } from '../data/keys';
 
 interface PointsLoaderProps {
   setMeasuredPoints: (points: MeasuredPoint[]) => void;
@@ -15,9 +19,38 @@ const HiddenFileInput = styled.input`
 
 const PointsLoader: FC<PointsLoaderProps> = ({ setMeasuredPoints }) => {
   const fileInput = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
+      return;
+    }
+
+    if (e.target.files[0].name.endsWith('.json')) {
+      const marked = JSON.parse(await e.target.files[0].text());
+      queryClient.setQueryData<Plant[]>(plantsWithPositionQueryKey, (old = []) => {
+        const newPlants = [...old];
+
+        for (const plantId of marked) {
+          const plantIndex = old.findIndex(p => p.id === plantId);
+
+          if (plantIndex === -1) {
+            continue;
+          }
+
+          const oldPlant = old[plantIndex];
+
+          if (oldPlant.tags.includes(MARKED_TAG_ID)) {
+            continue;
+          }
+
+          const newPlantTags = [...oldPlant.tags, MARKED_TAG_ID];
+          const newPlant = {...oldPlant, tags: newPlantTags};
+          newPlants.splice(plantIndex, 1, newPlant);
+        }
+
+        return newPlants;
+      });
       return;
     }
 
@@ -42,8 +75,8 @@ const PointsLoader: FC<PointsLoaderProps> = ({ setMeasuredPoints }) => {
   }
 
   return <>
-    <IconButton variant="positive" icon={<ExportIcon />} aria-label="Import CSV" onClick={() => fileInput.current?.click()}/>
-    <HiddenFileInput type="file" ref={fileInput} accept=".csv" onChange={onChange} />
+    <IconButton variant="positive" icon={<ExportIcon />} aria-label="Import CSV or JSON" onClick={() => fileInput.current?.click()}/>
+    <HiddenFileInput type="file" ref={fileInput} accept=".csv,.json" onChange={onChange} />
   </>;
 }
 

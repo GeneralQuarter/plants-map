@@ -5,6 +5,7 @@ import HeightTriangle from '../height-triangle';
 import { Plant } from '../../models/plant';
 import { SelectedTag } from '../../models/selected-tag';
 import { colorFromHueIndex } from '../../lib/color-from-hue-index';
+import { MARKED_TAG_ID } from '../../data/keys';
 
 export interface PlantMarkerProps {
   plant: Plant;
@@ -79,12 +80,16 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     return plant.tags.includes('planted');
   }, [plant.tags]);
 
+  const isMarked = useMemo(() => {
+    return plant.tags.includes(MARKED_TAG_ID);
+  }, [plant.tags]);
+
   const fillColor = useMemo(() => {
     if (exportSelected) {
       return `teal`;
     }
 
-    if (isPlanted) {
+    if (isPlanted && !isMarked) {
       return '#33691e';
     }
 
@@ -95,7 +100,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
 
     return colorFromHueIndex(firstSelectedTag.hueIndex, 1);
-  }, [plant, selectedTags, isPlanted, exportSelected]);
+  }, [plant, selectedTags, isPlanted, exportSelected, isMarked]);
 
   useMapEvent('moveend', updateLabelFits);
 
