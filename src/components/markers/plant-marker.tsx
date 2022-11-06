@@ -84,9 +84,17 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     return plant.tags.includes(MARKED_TAG_ID);
   }, [plant.tags]);
 
+  const isDead = useMemo(() => {
+    return plant.tags.includes('dead');
+  }, [plant.tags]);
+
   const fillColor = useMemo(() => {
     if (exportSelected) {
       return `teal`;
+    }
+
+    if (isDead) {
+      return `black`;
     }
 
     if (isPlanted && !isMarked) {
@@ -100,7 +108,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
 
     return colorFromHueIndex(firstSelectedTag.hueIndex, 1);
-  }, [plant, selectedTags, isPlanted, exportSelected, isMarked]);
+  }, [plant, selectedTags, isPlanted, exportSelected, isMarked, isDead]);
 
   useMapEvent('moveend', updateLabelFits);
 
@@ -129,6 +137,10 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
       return `blue`;
     }
 
+    if (isDead) {
+      return 'black';
+    }
+
     if (isPlanted) {
       return '#33691e';
     }
@@ -144,7 +156,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     }
 
     return `gray`;
-  }, [selected, showOutlines, isPlanted, isPinned]);
+  }, [selected, showOutlines, isPlanted, isPinned, isDead]);
 
   const pathOptions = useMemo<PathOptions>(() => {
     return {

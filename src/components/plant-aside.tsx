@@ -146,6 +146,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
 
   const isPlanted = hasTag('planted');
   const isPinned = hasTag('jalonne');
+  const isDead = hasTag('dead');
   const [quickActionLoading, setQuickActionLoading] = useState<string | undefined>(undefined);
   const [plantDate, setPlantDate] = useState<string>(formatMachineReadableDateTime(new Date(), 'day'));
   const [plantTime, setPlantTime] = useState<string>('14:00');
@@ -164,7 +165,7 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
         return;
       }
 
-      if (action === 'plant' && !fullPlantDate) {
+      if (['plant', 'dead'].includes(action) && !fullPlantDate) {
         return;
       }
   
@@ -220,12 +221,38 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
           </WrapStack>
         </>
       }
+      {isPlanted && !isDead && 
+        <>
+          <UnderlinedSectionHeading marginBottom="spacingXs">Quick actions</UnderlinedSectionHeading>
+          <WrapStack spacing="spacingXs" alignItems="flex-start">
+          <TextInput.Group>
+              <TextInput
+                value={plantDate}
+                aria-label="Death date"
+                id="plant-date"
+                //@ts-ignore
+                type="date"
+                onChange={e => setPlantDate(e.target.value)}
+              />
+              <TextInput
+                value={plantTime}
+                aria-label="Death time"
+                id="plant-time"
+                //@ts-ignore
+                type="time"
+                onChange={e => setPlantTime(e.target.value)}
+              />
+              <Button variant="negative" onClick={onQuickActionClicked('dead')} isDisabled={!!quickActionLoading} isLoading={quickActionLoading === 'dead'}>Dead</Button>
+            </TextInput.Group>
+          </WrapStack>
+        </>
+      }
       <UnderlinedSectionHeading marginBottom="spacingXs">Latin name</UnderlinedSectionHeading>
       {plant ? <Paragraph>{plant.fullLatinName}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Common name</UnderlinedSectionHeading>
       {plant ? <Paragraph>{plant.commonName}</Paragraph> : <OneLineSkeleton />}
-      <UnderlinedSectionHeading marginBottom="spacingXs">Sponsor</UnderlinedSectionHeading>
-      {plant ? <Paragraph>{plant.sponsor || <Text as="i" fontColor="gray500">No sponsor</Text>}</Paragraph> : <OneLineSkeleton />}
+      <UnderlinedSectionHeading marginBottom="spacingXs">Godfather/Godmother</UnderlinedSectionHeading>
+      {plant ? <Paragraph>{plant.sponsor || <Text as="i" fontColor="gray500">No godfather/godmother</Text>}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Fully grown size</UnderlinedSectionHeading>
       {plant ? <ValueParagraph marginBottom="none">
         {plant.height}&nbsp;m x {plant.width}&nbsp;m

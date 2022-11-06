@@ -43,6 +43,7 @@ import { useHedges } from '../lib/queries/hedges.query';
 import HedgePolyline from './markers/hedge-polyline';
 import LeftAside from './left-aside';
 import TagsSelector from './tags-selector';
+import { useDeadPlantMutation } from '../lib/mutations/dead-plant.mutation';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -78,10 +79,12 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const {mutate: updateRectangleCoords} = useUpdateRectangleCoordsMutation(cmaClient);
   const {mutate: _pinPlant} = usePinPlantMutation(cmaClient);
   const {mutate: _plantPlant} = usePlantPlantMutation(cmaClient);
+  const {mutate: _deadPlant} = useDeadPlantMutation(cmaClient);
   const tags = useTags(cdaClient);
   const [selectedTags, toggleTag] = useSelectedTags();
   const [showOutlines, setShowOutlines] = useState<boolean>(true);
   const [showLabels, setShowLabels] = useState<boolean>(true);
+  const [showDeadPlants, setShowDeadPlants] = useState<boolean>(false);
   const [measuredPoints, setMeasuredPoints] = useState<MeasuredPoint[]>([]);
   const [selectedMeasuredPoint, setSelectedMeasuredPoint] = useState<MeasuredPoint | undefined>(undefined);
   const [isExportSelecting, setIsExportSelecting] = useState<boolean>(false);
@@ -156,12 +159,13 @@ const Main: FC<MainProps> = ({ sdk }) => {
 
     if (!newPlant.position) {
       const center = map?.getCenter();
+      const newPosition = selectedPlant ? selectedPlant.position : (center && [center.lat, center.lng] as [number, number]);
 
-      if (!center) {
+      if (!newPosition) {
         return;
       }
 
-      newPlant = {...plant, position: [center.lat, center.lng] as [number, number]};
+      newPlant = {...plant, position: [...newPosition]};
       updatePlantPosition(newPlant);
     }
 
@@ -222,7 +226,15 @@ const Main: FC<MainProps> = ({ sdk }) => {
         onSettled: resolve
       });
     });
-  }, [_plantPlant])
+  }, [_plantPlant]);
+
+  const deadPlant = useCallback((plantId: string, date: Date) => {
+    return new Promise(resolve => {
+      _deadPlant({plantId, date}, {
+        onSettled: resolve
+      });
+    });
+  }, [_deadPlant]);
 
   const quickActionClicked = useCallback(async (plantId: string, action: string, date?: Date) => {
     try {
@@ -237,11 +249,26 @@ const Main: FC<MainProps> = ({ sdk }) => {
 
           await plantPlant(plantId, date);
           break;
+        case 'dead':
+          if (!date) {
+            break;
+          }
+
+          await deadPlant(plantId, date);
+          break;
         default:
           break;
       }
     } catch (e) {}
-  }, [pinPlant, plantPlant]);
+  }, [pinPlant, plantPlant, deadPlant]);
+
+  const filteredPlants = useMemo(() => {
+    if (showDeadPlants) {
+      return plants;
+    }
+
+    return plants?.filter(p => !p.tags.includes('dead'));
+  }, [plants, showDeadPlants]);
 
   return <Container as="div">
     <Header>
@@ -271,6 +298,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
       <Switch isChecked={showOutlines} onChange={() => setShowOutlines(!showOutlines)}>
         Show non pinned plants
       </Switch>
+      <Switch isChecked={showDeadPlants} onChange={() => setShowDeadPlants(!showDeadPlants)}>
+        Show dead plants
+      </Switch>
       <TagsSelector 
         tags={tags} 
         selectedTags={selectedTags} 
@@ -297,7 +327,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           renderer={fullRenderer}
         />
       ))}
-      {plants && plants.map(plant => (
+      {filteredPlants && filteredPlants.map(plant => (
         <PlantMarker key={plant.id}
           plant={plant}
           renderer={fullRenderer}
@@ -310,7 +340,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           showLabels={showLabels}
         />
       ))}
-      {rectangles && plants && rectangles.map(rectangle => (
+      {rectangles && filteredPlants && rectangles.map(rectangle => (
         <RectangleMarker key={rectangle.id}
           rectangle={rectangle}
           onCoordsChange={newCoords => updateRectangleCoords({...rectangle, coords: newCoords})}
