@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { Plant } from '../../models/plant';
 import { plantsWithPositionQueryKey } from '../queries/plants-with-position.query';
+import { upsertPlantTag } from '../update-tag-on-plant';
 
 interface Variables {
   plantId: string;
@@ -48,29 +49,15 @@ export function usePlantPlantMutation(cmaClient: PlainClientAPI) {
   }, [cmaClient]);
 
   return useMutation<EntryProps<KeyValueMap>, Error, Variables, Plant[]>(plantPlant, {
-    onSuccess: (_data, {plantId}: Variables) => {
-      queryClient.setQueryData<Plant[]>(plantsWithPositionQueryKey, (old = []) => {
-        const oldPlantIndex = old.findIndex(p => p.id === plantId);
+    onMutate: ({plantId}: Variables) => {
+      const beforeMutationPlants = queryClient.getQueryData<Plant[]>(plantsWithPositionQueryKey);
 
-        if (oldPlantIndex === -1) {
-          return old;
-        }
+      queryClient.setQueryData<Plant[]>(plantsWithPositionQueryKey, (old = []) => upsertPlantTag(old, plantId, 'planted'));
 
-        const oldPlant = old[oldPlantIndex];
-
-        if (!oldPlant || oldPlant.tags.includes('planted')) {
-          return old;
-        }
-        
-        const newTags = [...oldPlant.tags, 'planted'];
-        const newPlant = {...oldPlant, tags: newTags};
-        const newPlants = [...old];
-        newPlants.splice(oldPlantIndex, 1, newPlant);
-        return newPlants;
-      });
+      return beforeMutationPlants;
     },
-    onError: () => {
-      queryClient.invalidateQueries(plantsWithPositionQueryKey);
+    onError: (err: Error, {plantId}: Variables, plants: Plant[] | undefined) => {
+      queryClient.setQueryData<Plant[]>(plantsWithPositionQueryKey, plants ?? []);
     }
   });
 }

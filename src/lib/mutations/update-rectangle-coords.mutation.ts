@@ -49,9 +49,6 @@ export function useUpdateRectangleCoordsMutation(cmaClient: PlainClientAPI) {
     },
     onError: (_err, _rectangle, context) => {
       queryClient.setQueryData<Rectangle[]>(rectanglesWithCoordsQueryKey, context ?? []);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(rectanglesWithCoordsQueryKey);
     }
   });
 }

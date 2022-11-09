@@ -56,9 +56,6 @@ export function useUpdatePlantMutation(cmaClient: PlainClientAPI) {
     },
     onError: (_err, _plant, context) => {
       queryClient.setQueryData<Plant[]>(plantsWithPositionQueryKey, context ?? []);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(plantsWithPositionQueryKey);
     }
   });
 }
