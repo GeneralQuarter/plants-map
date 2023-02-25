@@ -17,9 +17,10 @@ export interface PlantMarkerProps {
   selectedTags: SelectedTag[];
   showOutlines?: boolean;
   showLabels?: boolean;
+  showCanopy?: boolean;
 }
 
-export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines, showLabels }: PlantMarkerProps) {
+export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines, showLabels, showCanopy }: PlantMarkerProps) {
   const circleRef = useRef<LeafletCircle | null>(null);
   const [labelFits, setLabelFits] = useState(false);
   const [locked, setLocked] = useState(true);
@@ -167,11 +168,16 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
 
   const renderLabel = useMemo(() => {
     return labelFits && showLabels;
-  }, [labelFits, showLabels])
+  }, [labelFits, showLabels]);
+
+  const radius = useMemo(() => {
+    const plantRadius = plant.width / 2;
+    return showCanopy ? plant.width / 2 : (plantRadius < 1 ? plantRadius : 1);
+  }, [plant.width, showCanopy]);
   
   return (
     <Circle center={plant.position ?? [0, 0]} 
-      radius={plant.width / 2}
+      radius={radius}
       ref={circleRef}
       eventHandlers={eventHandlers}
       pathOptions={pathOptions} 

@@ -85,6 +85,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const [showOutlines, setShowOutlines] = useState<boolean>(true);
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [showDeadPlants, setShowDeadPlants] = useState<boolean>(false);
+  const [showCanopy, setShowCanopy] = useState<boolean>(false);
   const [measuredPoints, setMeasuredPoints] = useState<MeasuredPoint[]>([]);
   const [selectedMeasuredPoint, setSelectedMeasuredPoint] = useState<MeasuredPoint | undefined>(undefined);
   const [isExportSelecting, setIsExportSelecting] = useState<boolean>(false);
@@ -301,6 +302,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
       <Switch isChecked={showDeadPlants} onChange={() => setShowDeadPlants(!showDeadPlants)}>
         Show dead plants
       </Switch>
+      <Switch isChecked={showCanopy} onChange={() => setShowCanopy(!showCanopy)}>
+        Show canopy
+      </Switch>
       <TagsSelector 
         tags={tags} 
         selectedTags={selectedTags} 
@@ -338,6 +342,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
           selectedTags={selectedTags}
           showOutlines={showOutlines}
           showLabels={showLabels}
+          showCanopy={showCanopy}
         />
       ))}
       {rectangles && filteredPlants && rectangles.map(rectangle => (

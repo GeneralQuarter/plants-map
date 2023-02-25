@@ -1,6 +1,6 @@
 {
   "name": "plants-map",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "author": {
     "email": "x1q.g1x@gmail.com",
@@ -10,24 +10,24 @@
     "url": "https://github.com/GeneralQuarter/plants-map"
   },
   "dependencies": {
-    "@contentful/app-sdk": "^4.12.1",
-    "@contentful/f36-components": "^4.21.0",
-    "@contentful/f36-icons": "^4.21.0",
+    "@contentful/app-sdk": "^4.16.0",
+    "@contentful/f36-components": "^4.26.0",
+    "@contentful/f36-icons": "^4.24.0",
     "@contentful/f36-tokens": "^4.0.1",
-    "@emotion/react": "^11.10.4",
-    "@emotion/styled": "^11.10.4",
-    "@geoman-io/leaflet-geoman-free": "^2.13.0",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@geoman-io/leaflet-geoman-free": "^2.14.2",
     "contentful": "^10.0.0-beta-v10.8",
-    "contentful-management": "^10.18.2",
+    "contentful-management": "^10.30.0",
     "file-saver": "^2.0.5",
-    "leaflet": "^1.9.2",
-    "node-sass": "^7.0.3",
+    "leaflet": "^1.9.3",
+    "node-sass": "^8.0.0",
     "papaparse": "^5.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-leaflet": "^4.1.0",
-    "react-query": "^3.39.2",
-    "react-scripts": "5.0.1"
+    "react-leaflet": "^4.2.0",
+    "react-query": "^3.39.3",
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "start": "cross-env BROWSER=none react-scripts start",
@@ -46,16 +46,16 @@
   "homepage": ".",
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/file-saver": "^2.0.5",
-    "@types/jest": "^29.2.0",
-    "@types/leaflet": "^1.9.0",
-    "@types/node": "^18.11.3",
-    "@types/papaparse": "^5.3.5",
-    "@types/react": "^18.0.21",
-    "@types/react-dom": "^18.0.6",
+    "@types/jest": "^29.4.0",
+    "@types/leaflet": "^1.9.1",
+    "@types/node": "^18.14.1",
+    "@types/papaparse": "^5.3.7",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
     "cross-env": "^7.0.3",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.5"
   }
 }
