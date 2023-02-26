@@ -1,22 +1,29 @@
 import { PathOptions, Renderer } from 'leaflet';
 import { FC, useMemo, useState } from 'react';
-import { Polyline, useMapEvent } from 'react-leaflet';
+import { Polyline, Tooltip, useMapEvent } from 'react-leaflet';
 import { metersPerPixel } from '../../lib/leaflet/meters-per-pixel';
 import { Hedge } from '../../models/hedge';
 
 interface HedgePolylineProps {
   hedge: Hedge;
-  renderer: Renderer,
+  renderer: Renderer;
+  onClick: () => void;
 }
 
 const HEDGE_WIDTH = 1.5;
 
-const HedgePolyline: FC<HedgePolylineProps> = ({ hedge, renderer }) => {
+const HedgePolyline: FC<HedgePolylineProps> = ({ hedge, renderer, onClick }) => {
   const [lat, setLat] = useState<number>(43);
   const [zoom, setZoom] = useState<number>(17);
   const weight = useMemo(() => {
     return HEDGE_WIDTH / metersPerPixel(lat, zoom);
   }, [lat, zoom]);
+
+  const eventHandlers = useMemo(() => ({
+    click() {
+      onClick();
+    }
+  }), [onClick]);
 
   useMapEvent('moveend', (e) => {
     if (!e.target._lastCenter) {
@@ -35,7 +42,10 @@ const HedgePolyline: FC<HedgePolylineProps> = ({ hedge, renderer }) => {
     positions={hedge.coords}
     pathOptions={options}
     renderer={renderer}
-  ></Polyline>;
+    eventHandlers={eventHandlers}
+  >
+    <Tooltip>{hedge.name}</Tooltip>
+  </Polyline>;
 }
 
 export default HedgePolyline;

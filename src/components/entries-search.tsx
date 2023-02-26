@@ -8,6 +8,7 @@ import { RectangleFields } from '../lib/contentful/rectangle-entry';
 import { ContentType } from '../lib/contentful/content-type';
 import { MenuIcon, PlusIcon, PreviewIcon } from '@contentful/f36-icons';
 import { useDebounce } from '../lib/use-debounce';
+import { HedgeFields } from '../lib/contentful/hedge-entry';
 
 interface EntriesSearchProps {
   cdaClient: ContentfulClientApi;
@@ -22,7 +23,7 @@ interface GenericGroupType<T> {
 type EntryGroupType<T> = GenericGroupType<Entry<T>>;
 type GroupedEntries = EntryGroupType<unknown>[];
 
-const contentTypeToGroupIndex: ContentType[] = [ContentType.Rectangle, ContentType.Plant, ContentType.PlantCard];
+const contentTypeToGroupIndex: ContentType[] = [ContentType.Rectangle, ContentType.Plant, ContentType.PlantCard, ContentType.Hedge];
 
 const entriesToGroupedEntries = (entries: Entry<unknown>[]): GroupedEntries => {
   const groups: GroupedEntries = [
@@ -36,6 +37,10 @@ const entriesToGroupedEntries = (entries: Entry<unknown>[]): GroupedEntries => {
     },
     {
       groupTitle: 'Plant Cards',
+      options: []
+    },
+    {
+      groupTitle: 'Hedges',
       options: []
     }
   ]
@@ -83,6 +88,11 @@ const renderItem = (entry: Entry<unknown>) => {
         {plantRectangleEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
         <span>{plantRectangleEntry.fields.label}</span>
       </Flex>;
+    case ContentType.Hedge:
+      return <Flex alignItems="center" gap='spacingS'>
+        <PreviewIcon />
+        <span>{(entry as Entry<HedgeFields>).fields.name}</span>
+      </Flex>
     default:
       return <span></span>;
   }
@@ -98,6 +108,8 @@ const itemToString = (entry: Entry<unknown>) => {
       return (entry as Entry<PlantCommonInfoFields>).fields.fullLatinName;
     case ContentType.Rectangle:
       return (entry as Entry<RectangleFields>).fields.label;
+    case ContentType.Hedge:
+        return (entry as Entry<HedgeFields>).fields.name;
     default:
       return '';
   }

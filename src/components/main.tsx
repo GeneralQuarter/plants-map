@@ -39,11 +39,15 @@ import { MeasuredPoint } from '../models/measured-point';
 import MeasuredPointMarker from './markers/measured-point-marker';
 import PointsExport from './points-export';
 import { useExportedIds } from '../lib/use-exported-ids';
-import { useHedges } from '../lib/queries/hedges.query';
+import { hedgesQueryKey, useHedges } from '../lib/queries/hedges.query';
 import HedgePolyline from './markers/hedge-polyline';
 import LeftAside from './left-aside';
 import TagsSelector from './tags-selector';
 import { useDeadPlantMutation } from '../lib/mutations/dead-plant.mutation';
+import { Hedge } from '../models/hedge';
+import { entryToHedge } from '../lib/contentful/entry-to-hedge';
+import { HedgeEntry } from '../lib/contentful/hedge-entry';
+import { LineUtil, CRS } from 'leaflet';
 
 interface MainProps {
   sdk: PageExtensionSDK;
@@ -117,6 +121,11 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const openRectangle = async (rectangleId: string) => {
     await sdk.navigator.openEntry(rectangleId, {slideIn: { waitForClose: true }});
     queryClient.invalidateQueries(rectanglesWithCoordsQueryKey);
+  }
+
+  const openHedge = async (hedgeId: string) => {
+    await sdk.navigator.openEntry(hedgeId, {slideIn: { waitForClose: true }});
+    queryClient.invalidateQueries(hedgesQueryKey);
   }
 
   const plantClicked = (plant: Plant, event: MouseEvent) => {
@@ -200,6 +209,10 @@ const Main: FC<MainProps> = ({ sdk }) => {
     map?.flyTo(newRectangle.coords[0], 20);
   }
 
+  const searchHedgeClicked = async (hedge: Hedge) => {
+    map?.flyTo(LineUtil.polylineCenter(hedge.coords, CRS.Simple), 22);
+  }
+
   const searchEntryClicked = (entry: Entry<unknown>) => {
     const contentType = entry.sys.contentType.sys.id as ContentType;
 
@@ -209,6 +222,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
         break;
       case ContentType.Rectangle:
         searchRectangleClicked(entryToRectangle(entry as RectangleEntry));
+        break;
+      case ContentType.Hedge:
+        searchHedgeClicked(entryToHedge(entry as HedgeEntry));
         break;
     }
   }
@@ -329,6 +345,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
         <HedgePolyline key={hedge.id} 
           hedge={hedge}
           renderer={fullRenderer}
+          onClick={() => openHedge(hedge.id)}
         />
       ))}
       {filteredPlants && filteredPlants.map(plant => (
