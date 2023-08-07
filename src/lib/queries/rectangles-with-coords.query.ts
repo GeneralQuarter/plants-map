@@ -6,7 +6,7 @@ import { getRectanglesWithCoords } from '../contentful/get-rectangles-with-coord
 
 export const rectanglesWithCoordsQueryKey = 'rectangles-with-coords';
 
-export function useRectanglesWithCoordsQuery(cdaClient: ContentfulClientApi) {
+export function useRectanglesWithCoordsQuery(cdaClient: ContentfulClientApi<undefined>) {
   const fetchRectanglesWithCoords = useCallback(async () => {
     const res = await getRectanglesWithCoords(cdaClient);
     return res.items;

@@ -4,7 +4,7 @@ import { MARKED_TAG_ID } from '../data/keys';
 import { Tags } from '../models/tags';
 import { getTags } from './contentful/get-tags';
 
-export function useTags(cdaClient: ContentfulClientApi): Tags {
+export function useTags(cdaClient: ContentfulClientApi<undefined>): Tags {
   const [tags, setTags] = useState<Tags>({});
 
   useEffect(() => {
