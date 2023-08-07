@@ -1,5 +1,5 @@
-import { Rectangle } from '../../models/rectangle';
-import { RectangleEntry } from './rectangle-entry';
+import type { Rectangle } from '../../models/rectangle';
+import type { RectangleEntry } from './rectangle.entry-skeleton';
 
 export function entryToRectangle(entry: RectangleEntry): Rectangle {
   return {

@@ -1,18 +1,18 @@
 import { Autocomplete, Flex } from '@contentful/f36-components';
-import { ContentfulClientApi, Entry } from 'contentful';
+import { ContentfulClientApi, Entry, EntrySkeletonType } from 'contentful';
 import { FC, useEffect, useState } from 'react';
-import { PlantFields } from '../lib/contentful/plant-entry';
-import { PlantCommonInfoFields } from '../lib/contentful/plant-common-info-entry';
 import { queryEntries } from '../lib/contentful/query-entries';
-import { RectangleFields } from '../lib/contentful/rectangle-entry';
 import { ContentType } from '../lib/contentful/content-type';
 import { MenuIcon, PlusIcon, PreviewIcon } from '@contentful/f36-icons';
 import { useDebounce } from '../lib/use-debounce';
-import { HedgeFields } from '../lib/contentful/hedge-entry';
+import type { PlantEntry } from '../lib/contentful/plant.entry-skeleton';
+import type { PlantCommonInfoEntry } from '../lib/contentful/plant-common-info.entry-skeleton';
+import type { RectangleEntry } from '../lib/contentful/rectangle.entry-skeleton';
+import type { HedgeEntry } from '../lib/contentful/hedge.entry-skeleton';
 
 interface EntriesSearchProps {
-  cdaClient: ContentfulClientApi;
-  onEntryClick?: (entry: Entry<unknown>) => void;
+  cdaClient: ContentfulClientApi<undefined>;
+  onEntryClick?: (entry: Entry<any>) => void;
 }
 
 interface GenericGroupType<T> {
@@ -20,12 +20,12 @@ interface GenericGroupType<T> {
   options: T[];
 }
 
-type EntryGroupType<T> = GenericGroupType<Entry<T>>;
-type GroupedEntries = EntryGroupType<unknown>[];
+type EntryGroupType<T extends EntrySkeletonType> = GenericGroupType<Entry<T, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>>;
+type GroupedEntries = EntryGroupType<any>[];
 
 const contentTypeToGroupIndex: ContentType[] = [ContentType.Rectangle, ContentType.Plant, ContentType.PlantCard, ContentType.Hedge];
 
-const entriesToGroupedEntries = (entries: Entry<unknown>[]): GroupedEntries => {
+const entriesToGroupedEntries = (entries: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>[]): GroupedEntries => {
   const groups: GroupedEntries = [
     {
       groupTitle: 'Rectangles',
@@ -58,8 +58,8 @@ const entriesToGroupedEntries = (entries: Entry<unknown>[]): GroupedEntries => {
   const plantGroupIndex = contentTypeToGroupIndex.indexOf(ContentType.Plant);
 
   groups[plantGroupIndex].options.sort((a, b) => {
-    const pA = (a as Entry<PlantFields>);
-    const pB = (b as Entry<PlantFields>);
+    const pA = (a as PlantEntry);
+    const pB = (b as PlantEntry);
 
     return pA.fields.code.localeCompare(pB.fields.code);
   });
@@ -67,12 +67,12 @@ const entriesToGroupedEntries = (entries: Entry<unknown>[]): GroupedEntries => {
   return groups;
 }
 
-const renderItem = (entry: Entry<unknown>) => {
+const renderItem = (entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => {
   const contentType = entry.sys.contentType.sys.id as ContentType;
 
   switch (contentType) {
     case ContentType.Plant:
-      const plantEntry = (entry as Entry<PlantFields>);
+      const plantEntry = (entry as PlantEntry);
       return <Flex alignItems="center" gap='spacingS'>
         {plantEntry.fields.position ? <PreviewIcon /> : <PlusIcon />}
         <span>{plantEntry.fields.code}</span>
@@ -80,10 +80,10 @@ const renderItem = (entry: Entry<unknown>) => {
     case ContentType.PlantCard:
       return <Flex alignItems="center" gap='spacingS'>
         <MenuIcon />
-        <span>{(entry as Entry<PlantCommonInfoFields>).fields.fullLatinName}</span>
+        <span>{(entry as PlantCommonInfoEntry).fields.fullLatinName}</span>
       </Flex>
     case ContentType.Rectangle:
-      const plantRectangleEntry = (entry as Entry<RectangleFields>);
+      const plantRectangleEntry = (entry as RectangleEntry);
       return <Flex alignItems="center" gap='spacingS'>
         {plantRectangleEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
         <span>{plantRectangleEntry.fields.label}</span>
@@ -91,25 +91,25 @@ const renderItem = (entry: Entry<unknown>) => {
     case ContentType.Hedge:
       return <Flex alignItems="center" gap='spacingS'>
         <PreviewIcon />
-        <span>{(entry as Entry<HedgeFields>).fields.name}</span>
+        <span>{(entry as HedgeEntry).fields.name}</span>
       </Flex>
     default:
       return <span></span>;
   }
 }
 
-const itemToString = (entry: Entry<unknown>) => {
+const itemToString = (entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => {
   const contentType = entry.sys.contentType.sys.id as ContentType;
 
   switch (contentType) {
     case ContentType.Plant:
-      return (entry as Entry<PlantFields>).fields.code;
+      return (entry as PlantEntry).fields.code;
     case ContentType.PlantCard:
-      return (entry as Entry<PlantCommonInfoFields>).fields.fullLatinName;
+      return (entry as PlantCommonInfoEntry).fields.fullLatinName;
     case ContentType.Rectangle:
-      return (entry as Entry<RectangleFields>).fields.label;
+      return (entry as RectangleEntry).fields.label;
     case ContentType.Hedge:
-        return (entry as Entry<HedgeFields>).fields.name;
+        return (entry as HedgeEntry).fields.name;
     default:
       return '';
   }
@@ -139,12 +139,12 @@ const EntriesSearch: FC<EntriesSearchProps> = ({ cdaClient, onEntryClick }) => {
     })();
   }, [cdaClient, debouncedInputValue]);
 
-  return <Autocomplete<Entry<unknown>>
+  return <Autocomplete<Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>>
     isGrouped 
     items={items} 
     itemToString={itemToString}
     renderItem={renderItem}
-    onSelectItem={(entry: Entry<unknown>) => onEntryClick?.(entry)}
+    onSelectItem={(entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => onEntryClick?.(entry)}
     onInputValueChange={setInputValue}
     listWidth={'full'}
     listMaxHeight={360}

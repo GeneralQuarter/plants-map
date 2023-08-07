@@ -1,17 +1,19 @@
-import { PageExtensionSDK } from '@contentful/app-sdk';
+import { PageAppSDK } from '@contentful/app-sdk';
 import { GlobalStyles } from '@contentful/f36-components';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Main from './main';
+import { useSDK } from '@contentful/react-apps-toolkit';
 
+import 'leaflet/dist/leaflet.css';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+import './page.scss';
 import '@geoman-io/leaflet-geoman-free';
-
-interface PageProps {
-  sdk: PageExtensionSDK;
-}
 
 const queryClient = new QueryClient();
 
-const Page = ({ sdk }: PageProps) => {
+const Page = () => {
+  const sdk = useSDK() as PageAppSDK;
+
   return <QueryClientProvider client={queryClient}>
     <>
       <GlobalStyles />

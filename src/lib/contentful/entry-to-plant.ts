@@ -1,5 +1,5 @@
-import { Plant } from '../../models/plant';
-import { PlantEntry } from './plant-entry';
+import type { Plant } from '../../models/plant';
+import type { PlantEntry } from './plant.entry-skeleton';
 
 export function entryToPlant(entry: PlantEntry): Plant {
   return {

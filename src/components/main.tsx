@@ -1,4 +1,4 @@
-import { PageExtensionSDK } from '@contentful/app-sdk';
+import { PageAppSDK } from '@contentful/app-sdk';
 import { Map, SVG } from 'leaflet';
 import { FC, useCallback, useMemo, useState } from 'react';
 import POLYGONS from '../data/polygons';
@@ -21,7 +21,7 @@ import { plantsWithPositionQueryKey, usePlantsWithPositionQuery } from '../lib/q
 import { createCMAClient } from '../lib/contentful/create-cma-client';
 import { useUpdatePlantMutation } from '../lib/mutations/update-plant-position.mutation';
 import { entryToPlant } from '../lib/contentful/entry-to-plant';
-import { PlantEntry } from '../lib/contentful/plant-entry';
+import { PlantEntry } from '../lib/contentful/plant.entry-skeleton';
 import { useQueryClient } from 'react-query';
 import { rectanglesWithCoordsQueryKey, useRectanglesWithCoordsQuery } from '../lib/queries/rectangles-with-coords.query';
 import RectangleMarker from './markers/rectangle-marker';
@@ -29,7 +29,7 @@ import { useUpdateRectangleCoordsMutation } from '../lib/mutations/update-rectan
 import { Rectangle } from '../models/rectangle';
 import { generateRectangle } from '../lib/leaflet/generate-rectangle';
 import { entryToRectangle } from '../lib/contentful/entry-to-rectangle';
-import { RectangleEntry } from '../lib/contentful/rectangle-entry';
+import { RectangleEntry } from '../lib/contentful/rectangle.entry-skeleton';
 import { useTags } from '../lib/use-tags';
 import { useSelectedTags } from '../lib/use-selected-tags';
 import { usePinPlantMutation } from '../lib/mutations/pin-plant.mutation';
@@ -46,11 +46,11 @@ import TagsSelector from './tags-selector';
 import { useDeadPlantMutation } from '../lib/mutations/dead-plant.mutation';
 import { Hedge } from '../models/hedge';
 import { entryToHedge } from '../lib/contentful/entry-to-hedge';
-import { HedgeEntry } from '../lib/contentful/hedge-entry';
+import { HedgeEntry } from '../lib/contentful/hedge.entry-skeleton';
 import { LineUtil, CRS } from 'leaflet';
 
 interface MainProps {
-  sdk: PageExtensionSDK;
+  sdk: PageAppSDK;
 }
 
 const Container = styled(Box)`
@@ -213,7 +213,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
     map?.flyTo(LineUtil.polylineCenter(hedge.coords, CRS.Simple), 22);
   }
 
-  const searchEntryClicked = (entry: Entry<unknown>) => {
+  const searchEntryClicked = (entry: Entry<any>) => {
     const contentType = entry.sys.contentType.sys.id as ContentType;
 
     switch (contentType) {

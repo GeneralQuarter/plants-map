@@ -1,83 +1,57 @@
-import React, { Component } from 'react';
-import { AppExtensionSDK } from '@contentful/app-sdk';
+import { ConfigAppSDK } from '@contentful/app-sdk';
+import { Flex, Form, FormControl, Heading, TextInput } from '@contentful/f36-components';
+import { useSDK } from '@contentful/react-apps-toolkit';
 import { css } from 'emotion';
-
-import { Form, FormControl, TextInput, Heading } from "@contentful/f36-components";
+import { useCallback, useEffect, useState } from 'react';
 
 export interface AppInstallationParameters {
   cdaToken: string;
 }
 
-interface ConfigProps {
-  sdk: AppExtensionSDK;
-}
+const ConfigScreen = () => {
+  const [parameters, setParameters] = useState<AppInstallationParameters>({cdaToken: ''});
+  const sdk = useSDK<ConfigAppSDK>();
 
-interface ConfigState {
-  parameters: AppInstallationParameters;
-}
-
-export default class Config extends Component<ConfigProps, ConfigState> {
-  constructor(props: ConfigProps) {
-    super(props);
-    this.state = { parameters: { cdaToken: '' } };
-
-    // `onConfigure` allows to configure a callback to be
-    // invoked when a user attempts to install the app or update
-    // its configuration.
-    props.sdk.app.onConfigure(() => this.onConfigure());
-  }
-
-  async componentDidMount() {
-    // Get current parameters of the app.
-    // If the app is not installed yet, `parameters` will be `null`.
-    const parameters: AppInstallationParameters | null = await this.props.sdk.app.getParameters();
-
-    this.setState(parameters ? { parameters } : this.state, () => {
-      // Once preparation has finished, call `setReady` to hide
-      // the loading screen and present the app to a user.
-      this.props.sdk.app.setReady();
-    });
-  }
-
-  onConfigure = async () => {
-    // This method will be called when a user clicks on "Install"
-    // or "Save" in the configuration screen.
-    // for more details see https://www.contentful.com/developers/docs/extensibility/ui-extensions/sdk-reference/#register-an-app-configuration-hook
-
-    // Get current the state of EditorInterface and other entities
-    // related to this app installation
-    const currentState = await this.props.sdk.app.getCurrentState();
+  const onConfigure = useCallback(async () => {
+    const currentState = await sdk.app.getCurrentState();
 
     return {
-      // Parameters to be persisted as the app configuration.
-      parameters: this.state.parameters,
-      // In case you don't want to submit any update to app
-      // locations, you can just pass the currentState as is
+      parameters,
       targetState: currentState,
     };
-  };
+  }, [parameters, sdk]);
 
-  render() {
-    return (
+  useEffect(() => {
+    sdk.app.onConfigure(() => onConfigure());
+  }, [sdk, onConfigure]);
+
+  useEffect(() => {
+    (async () => {
+      const currentParameters: AppInstallationParameters | null = await sdk.app.getParameters();
+
+      if (currentParameters) {
+        setParameters(currentParameters);
+      }
+
+      sdk.app.setReady();
+    })();
+  }, [sdk]);
+
+  return (
+    <Flex flexDirection="column" className={css({ margin: '80px', maxWidth: '800px' })}>
       <Form className={css({ width: '500px', margin: '80px' })}>
         <Heading marginBottom="none">Plants Map</Heading>
         <FormControl id="cda-access-token" isRequired>
           <FormControl.Label>CDA Access Token</FormControl.Label>
           <TextInput
             name="cda-access-token"
-            value={this.state.parameters.cdaToken}
-            onChange={e => {
-              this.setState({
-                ...this.state,
-                parameters: {
-                  ...this.state.parameters,
-                  cdaToken: e.target.value
-                }
-              })
-            }} />
+            value={parameters.cdaToken}
+            onChange={evt => setParameters({...parameters, cdaToken: evt.target.value})} />
           <FormControl.HelpText>Please enter CDA Access Token</FormControl.HelpText>
         </FormControl>
       </Form>
-    );
-  }
-}
+    </Flex>
+  );
+};
+
+export default ConfigScreen;

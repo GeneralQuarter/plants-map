@@ -1,7 +1,7 @@
-import { ContentfulClientApi } from 'contentful';
-import { Tags } from '../../models/tags';
+import type { ContentfulClientApi } from 'contentful';
+import type { Tags } from '../../models/tags';
 
-export async function getTags(cdaClient: ContentfulClientApi) {
+export async function getTags(cdaClient: ContentfulClientApi<undefined>) {
   const tagCollection = await cdaClient.getTags({
     limit: 1000
   });

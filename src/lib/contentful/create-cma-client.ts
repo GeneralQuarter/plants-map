@@ -1,7 +1,7 @@
-import { PageExtensionSDK } from '@contentful/app-sdk';
+import { PageAppSDK } from '@contentful/app-sdk';
 import { createClient } from 'contentful-management';
 
-export function createCMAClient(sdk: PageExtensionSDK) {
+export function createCMAClient(sdk: PageAppSDK) {
   return createClient({
     apiAdapter: sdk.cmaAdapter,
   }, {

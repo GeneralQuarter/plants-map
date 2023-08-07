@@ -1,8 +1,15 @@
+import { ChainModifiers, Entry, EntryCollection, EntrySkeletonType, LocaleCode } from 'contentful';
 import { PaginatedResult } from '../../models/paginated-result';
-import { EntryCollectionWithLinkResolutionAndWithoutUnresolvableLinks, EntryWithLinkResolutionAndWithoutUnresolvableLinks } from 'contentful';
-import { FieldsType } from 'contentful/dist/types/types/query/util';
 
-export function entryCollectionToPaginatedResult<TF extends FieldsType, TR>(collection: EntryCollectionWithLinkResolutionAndWithoutUnresolvableLinks<TF>, entryToItem: (e: EntryWithLinkResolutionAndWithoutUnresolvableLinks<TF>) => TR): PaginatedResult<TR> {
+export function entryCollectionToPaginatedResult<
+  T, 
+  EntrySkeleton extends EntrySkeletonType, 
+  Modifiers extends ChainModifiers, 
+  Locales extends LocaleCode
+>(
+  collection: EntryCollection<EntrySkeleton, Modifiers, Locales>, 
+  entryToItem: (e: Entry<EntrySkeleton, Modifiers, Locales>) => T
+): PaginatedResult<T> {
   return {
     total: collection.total,
     skip: collection.skip,
