@@ -9,6 +9,7 @@ import type { PlantEntry } from '../lib/contentful/plant.entry-skeleton';
 import type { PlantCommonInfoEntry } from '../lib/contentful/plant-common-info.entry-skeleton';
 import type { RectangleEntry } from '../lib/contentful/rectangle.entry-skeleton';
 import type { HedgeEntry } from '../lib/contentful/hedge.entry-skeleton';
+import type { MapZoneEntry } from '../lib/contentful/map-zone.entry-skeleton';
 
 interface EntriesSearchProps {
   cdaClient: ContentfulClientApi<undefined>;
@@ -23,7 +24,7 @@ interface GenericGroupType<T> {
 type EntryGroupType<T extends EntrySkeletonType> = GenericGroupType<Entry<T, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>>;
 type GroupedEntries = EntryGroupType<any>[];
 
-const contentTypeToGroupIndex: ContentType[] = [ContentType.Rectangle, ContentType.Plant, ContentType.PlantCard, ContentType.Hedge];
+const contentTypeToGroupIndex: ContentType[] = [ContentType.Rectangle, ContentType.Plant, ContentType.PlantCard, ContentType.Hedge, ContentType.MapZone];
 
 const entriesToGroupedEntries = (entries: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>[]): GroupedEntries => {
   const groups: GroupedEntries = [
@@ -41,6 +42,10 @@ const entriesToGroupedEntries = (entries: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS
     },
     {
       groupTitle: 'Hedges',
+      options: []
+    },
+    {
+      groupTitle: 'Zones',
       options: []
     }
   ]
@@ -92,6 +97,12 @@ const renderItem = (entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => {
       return <Flex alignItems="center" gap='spacingS'>
         <PreviewIcon />
         <span>{(entry as HedgeEntry).fields.name}</span>
+      </Flex>
+    case ContentType.MapZone:
+      const mapZoneEntry = (entry as MapZoneEntry);
+      return <Flex alignItems="center" gap='spacingS'>
+        {mapZoneEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
+        <span>{mapZoneEntry.fields.name}</span>
       </Flex>
     default:
       return <span></span>;

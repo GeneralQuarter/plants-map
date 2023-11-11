@@ -3,4 +3,5 @@ export enum ContentType {
   PlantCard = 'PlantCommonInfo',
   Rectangle = 'rectangle',
   Hedge = 'hedge',
+  MapZone = 'mapZone',
 }

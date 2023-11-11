@@ -48,6 +48,13 @@ import { Hedge } from '../models/hedge';
 import { entryToHedge } from '../lib/contentful/entry-to-hedge';
 import { HedgeEntry } from '../lib/contentful/hedge.entry-skeleton';
 import { LineUtil, CRS } from 'leaflet';
+import { MapZone } from '../models/map-zone';
+import { generateMapZone } from '../lib/generate-map-zone';
+import { entryToMapZone } from '../lib/contentful/entry-to-map-zone';
+import { MapZoneEntry } from '../lib/contentful/map-zone.entry-skeleton';
+import { useUpdateMapZoneCoordsMutation } from '../lib/mutations/update-map-zone-coords.mutation';
+import { mapZonesWithCoordsQueryKey, useMapZonesWithCoordsQuery } from '../lib/queries/map-zones-with-coords.query';
+import MapZoneMarker from './markers/map-zone.marker';
 
 interface MainProps {
   sdk: PageAppSDK;
@@ -76,11 +83,13 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const [map, setMap] = useState<Map | undefined>(undefined);
   const {data: plants} = usePlantsWithPositionQuery(cdaClient);
   const {data: rectangles} = useRectanglesWithCoordsQuery(cdaClient);
+  const {data: mapZones} = useMapZonesWithCoordsQuery(cdaClient);
   const {data: hedges} = useHedges(cdaClient);
   const [selectedPlantId, setSelectedPlantId] = useState<string | undefined>(undefined);
   const [measurementLines, addMeasure, removeMeasurement] = useMeasurementGraph();
   const {mutate: updatePlantPosition} = useUpdatePlantMutation(cmaClient);
   const {mutate: updateRectangleCoords} = useUpdateRectangleCoordsMutation(cmaClient);
+  const {mutate: updateMapZoneCoords} = useUpdateMapZoneCoordsMutation(cmaClient);
   const {mutate: _pinPlant} = usePinPlantMutation(cmaClient);
   const {mutate: _plantPlant} = usePlantPlantMutation(cmaClient);
   const {mutate: _deadPlant} = useDeadPlantMutation(cmaClient);
@@ -90,6 +99,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [showDeadPlants, setShowDeadPlants] = useState<boolean>(false);
   const [showCanopy, setShowCanopy] = useState<boolean>(false);
+  const [showZones, setShowZones] = useState<boolean>(false);
   const [measuredPoints, setMeasuredPoints] = useState<MeasuredPoint[]>([]);
   const [selectedMeasuredPoint, setSelectedMeasuredPoint] = useState<MeasuredPoint | undefined>(undefined);
   const [isExportSelecting, setIsExportSelecting] = useState<boolean>(false);
@@ -126,6 +136,11 @@ const Main: FC<MainProps> = ({ sdk }) => {
   const openHedge = async (hedgeId: string) => {
     await sdk.navigator.openEntry(hedgeId, {slideIn: { waitForClose: true }});
     queryClient.invalidateQueries(hedgesQueryKey);
+  }
+
+  const openMapZone = async (mapZoneId: string) => {
+    await sdk.navigator.openEntry(mapZoneId, {slideIn: { waitForClose: true }});
+    queryClient.invalidateQueries(mapZonesWithCoordsQueryKey);
   }
 
   const plantClicked = (plant: Plant, event: MouseEvent) => {
@@ -213,6 +228,27 @@ const Main: FC<MainProps> = ({ sdk }) => {
     map?.flyTo(LineUtil.polylineCenter(hedge.coords, CRS.Simple), 22);
   }
 
+  const searchMapZoneClicked = async (mapZone: MapZone) => {
+    let newMapZone = mapZone;
+
+    if (!newMapZone.coords) {
+      const center = map?.getCenter();
+
+      if (!center) {
+        return;
+      }
+
+      newMapZone = {...newMapZone, coords: generateMapZone([center.lat, center.lng], mapZone.orientation)};
+      updateMapZoneCoords(newMapZone);
+    }
+
+    if (!newMapZone.coords) {
+      return;
+    }
+
+    map?.flyTo(newMapZone.coords[0], 20);
+  }
+
   const searchEntryClicked = (entry: Entry<any>) => {
     const contentType = entry.sys.contentType.sys.id as ContentType;
 
@@ -225,6 +261,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
         break;
       case ContentType.Hedge:
         searchHedgeClicked(entryToHedge(entry as HedgeEntry));
+        break;
+      case ContentType.MapZone:
+        searchMapZoneClicked(entryToMapZone(entry as MapZoneEntry));
         break;
     }
   }
@@ -287,6 +326,17 @@ const Main: FC<MainProps> = ({ sdk }) => {
     return plants?.filter(p => !p.tags.includes('dead'));
   }, [plants, showDeadPlants]);
 
+  const onMapZoneMarkerClicked = useCallback((mapZone: MapZone) => {
+   return (e: MouseEvent) => {
+    if (e.shiftKey && mapZone.coords) {
+      const newOrientation = mapZone.orientation === 'landscape' ? 'portrait' : 'landscape';
+      updateMapZoneCoords({...mapZone, orientation: newOrientation, coords: generateMapZone(mapZone.coords[0], newOrientation)})
+    } else {
+      openMapZone(mapZone.id);
+    }
+   };
+  }, []);
+
   return <Container as="div">
     <Header>
       <EntriesSearch cdaClient={cdaClient} onEntryClick={searchEntryClicked} />
@@ -320,6 +370,9 @@ const Main: FC<MainProps> = ({ sdk }) => {
       </Switch>
       <Switch isChecked={showCanopy} onChange={() => setShowCanopy(!showCanopy)}>
         Show canopy
+      </Switch>
+      <Switch isChecked={showZones} onChange={() => setShowZones(!showZones)}>
+        Show zones
       </Switch>
       <TagsSelector 
         tags={tags} 
@@ -368,6 +421,14 @@ const Main: FC<MainProps> = ({ sdk }) => {
           onCoordsChange={newCoords => updateRectangleCoords({...rectangle, coords: newCoords})}
           renderer={fullRenderer}
           onClick={() => openRectangle(rectangle.id)}
+        />
+      ))}
+      {showZones && mapZones && filteredPlants && mapZones.map(mapZone => (
+        <MapZoneMarker key={mapZone.id}
+          mapZone={mapZone}
+          onCoordsChange={newCoords => updateMapZoneCoords({...mapZone, coords: newCoords})}
+          renderer={fullRenderer}
+          onClick={onMapZoneMarkerClicked(mapZone)}
         />
       ))}
       {measurementLines.map(line => (
