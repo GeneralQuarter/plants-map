@@ -36,6 +36,12 @@ const rawCoordinates: RawCoords = {
       102.9068832884785
     ]
   ],
+  forestEdge: [
+    [0.88287503, 46.37767786],
+    [0.88290606, 46.37778357],
+    [0.88295018, 46.37785656],
+    [0.88299135, 46.37796499],
+  ],
   highTensionLine1: [
     [
       0.8841199961725144,
@@ -118,6 +124,10 @@ const rawCoordinates: RawCoords = {
     [0.88384652, 46.38060820, 0.094],
     [0.88390463, 46.38061417, -0.054]
   ],
+  door4: [
+    [0.88158807, 46.37853226],
+    [0.88152369, 46.37853490]
+  ],
 };
 
 const highTensionLinePathOptions: PathOptions = { color: 'blue', opacity: 0.3, weight: 1 };
@@ -144,6 +154,16 @@ const POLYLINES: HardcodedMapObject[] = [
   {
     label: 'Two meteres line (north)',
     positions: rawCoordinates.twoMetersNorth.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
+    pathOptions: {
+      color: 'gray',
+      fillOpacity: 0.2,
+      dashArray: '2',
+      weight: 1,
+    },
+  },
+  {
+    label: 'Forest\'s edge',
+    positions: rawCoordinates.forestEdge.map(latLngAlt => latLngAtlToLatLng(latLngAlt)),
     pathOptions: {
       color: 'gray',
       fillOpacity: 0.2,
