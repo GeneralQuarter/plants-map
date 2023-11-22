@@ -55,10 +55,13 @@ import { MapZoneEntry } from '../lib/contentful/map-zone.entry-skeleton';
 import { useUpdateMapZoneCoordsMutation } from '../lib/mutations/update-map-zone-coords.mutation';
 import { mapZonesWithCoordsQueryKey, useMapZonesWithCoordsQuery } from '../lib/queries/map-zones-with-coords.query';
 import MapZoneMarker from './markers/map-zone.marker';
-
-interface MainProps {
-  sdk: PageAppSDK;
-}
+import EditorMapGL from './editor-map-gl';
+import StaticMapFeatures from './map/static-map-features';
+import Plants from './map/plants';
+import { useSDK } from '@contentful/react-apps-toolkit';
+import centroid from '@turf/centroid';
+import { MapGeoJSONFeature } from 'react-map-gl/maplibre';
+import distance from '@turf/distance';
 
 const Container = styled(Box)`
   height: 100vh;
@@ -69,7 +72,8 @@ const Container = styled(Box)`
 
 const fullRenderer = new SVG({ padding: 1 });
 
-const Main: FC<MainProps> = ({ sdk }) => {
+const Main: FC = () => {
+  const sdk = useSDK() as PageAppSDK;
   const queryClient = useQueryClient();
 
   const cdaClient = useMemo(() => {
@@ -319,11 +323,15 @@ const Main: FC<MainProps> = ({ sdk }) => {
   }, [pinPlant, plantPlant, deadPlant]);
 
   const filteredPlants = useMemo(() => {
+    if (!plants) {
+      return [];
+    }
+
     if (showDeadPlants) {
       return plants;
     }
 
-    return plants?.filter(p => !p.tags.includes('dead'));
+    return plants.filter(p => !p.tags.includes('dead'));
   }, [plants, showDeadPlants]);
 
   const onMapZoneMarkerClicked = useCallback((mapZone: MapZone) => {
@@ -336,6 +344,35 @@ const Main: FC<MainProps> = ({ sdk }) => {
     }
    };
   }, []);
+
+  const onFeatureMoved = useCallback((feature: MapGeoJSONFeature) => {
+    const plant = plants?.find(p => p.id === feature.properties.id);
+
+    if (!plant || !plant.position) {
+      return;
+    }
+
+    // @ts-ignore
+    const newCenter = centroid(feature);
+    const oldCenter = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'Point',
+        coordinates: [
+          plant.position[1],
+          plant.position[0]
+        ]
+      }
+    };
+
+    // @ts-ignore
+    const d = distance(oldCenter, newCenter, {units: 'centimeters'});
+
+    if (d > 1) {
+      updatePlantPosition({...plant, position: [newCenter.geometry.coordinates[1], newCenter.geometry.coordinates[0]]});
+    }
+  }, [plants]);
 
   return <Container as="div">
     <Header>
@@ -380,7 +417,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
         toggleTag={toggleTag}
       />
     </LeftAside>
-    <EditorMap setMap={setMap}>
+    {/* <EditorMap setMap={setMap}>
       {POLYGONS.map(polygon => (
         <Polygon key={polygon.label} positions={polygon.positions} pathOptions={polygon.pathOptions} renderer={fullRenderer} pmIgnore={true} />
       ))}
@@ -436,7 +473,11 @@ const Main: FC<MainProps> = ({ sdk }) => {
           removeMeasurement(line.id.split('->') as [string, string])
         }} />
       ))}
-    </EditorMap>
+    </EditorMap> */}
+    <EditorMapGL onFeatureMoved={onFeatureMoved}>
+        <StaticMapFeatures />
+        <Plants plants={filteredPlants} showCanopy={showCanopy} />
+    </EditorMapGL>
   </Container>;
 }
 

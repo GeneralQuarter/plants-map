@@ -4,20 +4,20 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import Main from './main';
 import { useSDK } from '@contentful/react-apps-toolkit';
 
-import 'leaflet/dist/leaflet.css';
-import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+// import 'leaflet/dist/leaflet.css';
+// import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import './page.scss';
-import '@geoman-io/leaflet-geoman-free';
+// import '@geoman-io/leaflet-geoman-free';
 
 const queryClient = new QueryClient();
 
 const Page = () => {
-  const sdk = useSDK() as PageAppSDK;
+  // const sdk = useSDK() as PageAppSDK;
 
   return <QueryClientProvider client={queryClient}>
     <>
       <GlobalStyles />
-      <Main sdk={sdk} />
+      <Main />
     </>
   </QueryClientProvider>;
 };
