@@ -25,9 +25,7 @@ export function usePlantPlantMutation(cmaClient: PlainClientAPI) {
       }
     }
 
-    const actions = {
-      [date.toISOString()]: 'PLANTED'
-    };
+    const plantedAt = date.toISOString();
 
     const updatedEntry = await cmaClient.entry.patch(
       { entryId: plantId, version: entry.sys.version } as { entryId: string },
@@ -38,9 +36,9 @@ export function usePlantPlantMutation(cmaClient: PlainClientAPI) {
           value: plantedTag
         },
         {
-          op: 'add',
-          path: '/fields/actions',
-          value: { fr: actions }
+          op: entry.fields.plantedAt ? 'replace' : 'add',
+          path: entry.fields.plantedAt ? '/fields/plantedAt/fr' : '/fields/plantedAt',
+          value: entry.fields.plantedAt ? plantedAt : { fr: plantedAt }
         }
       ]
     );

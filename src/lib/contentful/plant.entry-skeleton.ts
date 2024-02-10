@@ -6,6 +6,8 @@ type PlantFields = {
   code: EntryFieldTypes.Symbol;
   sponsor: EntryFieldTypes.Symbol;
   position?: EntryFieldTypes.Location;
+  plantedAt?: EntryFieldTypes.Date;
+  declaredDeadAt?: EntryFieldTypes.Date;
 }
 
 export type PlantEntrySkeleton = EntrySkeletonType<PlantFields, 'plant'>;

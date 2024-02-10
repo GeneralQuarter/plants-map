@@ -25,10 +25,7 @@ export function useDeadPlantMutation(cmaClient: PlainClientAPI) {
       }
     }
 
-    const actions = {
-      ...entry.fields.actions.fr,
-      [date.toISOString()]: 'DEAD'
-    };
+    const declaredDeadAt = date.toISOString();
 
     const updatedEntry = await cmaClient.entry.patch(
       { entryId: plantId, version: entry.sys.version } as { entryId: string },
@@ -39,9 +36,9 @@ export function useDeadPlantMutation(cmaClient: PlainClientAPI) {
           value: deadTag
         },
         {
-          op: 'add',
-          path: '/fields/actions',
-          value: { fr: actions }
+          op: entry.fields.declaredDeadAt ? 'replace' : 'add',
+          path: entry.fields.declaredDeadAt ? '/fields/declaredDeadAt/fr' : '/fields/declaredDeadAt',
+          value: entry.fields.declaredDeadAt ? declaredDeadAt : { fr: declaredDeadAt }
         }
       ]
     );

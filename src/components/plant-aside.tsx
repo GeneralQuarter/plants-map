@@ -14,7 +14,8 @@ import {
   SkeletonDisplayText,
   SkeletonBodyText,
   TextInput,
-  formatMachineReadableDateTime, 
+  formatMachineReadableDateTime,
+  DateTime, 
 } from '@contentful/f36-components';
 import { CloseIcon, EditIcon } from '@contentful/f36-icons';
 import tokens from '@contentful/f36-tokens';
@@ -251,6 +252,14 @@ const PlantAside: FC<PlantAsideProps> = ({ plant, open, onEditClick, onCloseClic
       {plant ? <Paragraph>{plant.fullLatinName}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Common name</UnderlinedSectionHeading>
       {plant ? <Paragraph>{plant.commonName}</Paragraph> : <OneLineSkeleton />}
+      {plant && plant.plantedAt && <>
+        <UnderlinedSectionHeading marginBottom="spacingXs">Planted At</UnderlinedSectionHeading>
+        <ValueParagraph><DateTime date={plant.plantedAt}/></ValueParagraph>
+      </>}
+      {plant && plant.declaredDeadAt && <>
+        <UnderlinedSectionHeading marginBottom="spacingXs">Declared Dead At</UnderlinedSectionHeading>
+        <ValueParagraph><DateTime date={plant.declaredDeadAt}/></ValueParagraph>
+      </>}
       <UnderlinedSectionHeading marginBottom="spacingXs">Godfather/Godmother</UnderlinedSectionHeading>
       {plant ? <Paragraph>{plant.sponsor || <Text as="i" fontColor="gray500">No godfather/godmother</Text>}</Paragraph> : <OneLineSkeleton />}
       <UnderlinedSectionHeading marginBottom="spacingXs">Fully grown size</UnderlinedSectionHeading>

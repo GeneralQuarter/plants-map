@@ -10,4 +10,6 @@ export interface Plant {
   position?: [lat: number, lon: number];
   sourceLinks: string[];
   tags: string[];
+  plantedAt?: Date;
+  declaredDeadAt?: Date;
 }
