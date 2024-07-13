@@ -1,5 +1,5 @@
 import { PageAppSDK } from '@contentful/app-sdk';
-import { Map, SVG } from 'leaflet';
+import { LeafletMouseEvent, Map, SVG } from 'leaflet';
 import { FC, useCallback, useMemo, useState } from 'react';
 import POLYGONS from '../data/polygons';
 import POLYLINES from '../data/polylines';
@@ -55,6 +55,7 @@ import { MapZoneEntry } from '../lib/contentful/map-zone.entry-skeleton';
 import { useUpdateMapZoneCoordsMutation } from '../lib/mutations/update-map-zone-coords.mutation';
 import { mapZonesWithCoordsQueryKey, useMapZonesWithCoordsQuery } from '../lib/queries/map-zones-with-coords.query';
 import MapZoneMarker from './markers/map-zone.marker';
+import { coordsToJSONtext } from '../lib/coords-to-json-text';
 
 interface MainProps {
   sdk: PageAppSDK;
@@ -165,7 +166,19 @@ const Main: FC<MainProps> = ({ sdk }) => {
     addMeasure({id: selectedPlant.id, position: selectedPlant.position}, {id: plant.id, position: plant.position});
   }
 
-  const measuredPointClick = (measuredPoint: MeasuredPoint) => {
+  const measuredPointClick = (e: LeafletMouseEvent, measuredPoint: MeasuredPoint) => {
+    if (e.originalEvent.ctrlKey) {
+      let text = `[${measuredPoint.coords[1]}, ${measuredPoint.coords[0]}],`;
+      if (e.originalEvent.shiftKey && measuredPoint.description) {
+        const allCoords = measuredPoints
+          .filter(mp => mp.description === measuredPoint.description)
+          .map(mp => mp.coords);
+        text = coordsToJSONtext(allCoords);
+      }
+      navigator.clipboard.writeText(text);
+      return;
+    }
+
     if (!selectedMeasuredPoint) {
       setSelectedMeasuredPoint(measuredPoint);
       return;
@@ -391,7 +404,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
         <MeasuredPointMarker key={point.name} 
           point={point}
           renderer={fullRenderer}
-          onClick={() => measuredPointClick(point)}
+          onClick={(e) => measuredPointClick(e, point)}
         />
       ))}
       {hedges && hedges.map(hedge => (

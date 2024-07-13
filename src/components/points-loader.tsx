@@ -66,7 +66,8 @@ const PointsLoader: FC<PointsLoaderProps> = ({ setMeasuredPoints }) => {
         const measuredPoints = r.data.map((d: any) => ({
           name: d.Name,
           coords: [parseFloat(d.Latitude), parseFloat(d.Longitude)],
-          height: parseFloat(d['Ellipsoidal height'])
+          height: parseFloat(d['Ellipsoidal height']),
+          description: d.Description,
         }) as MeasuredPoint).filter(n => !!n.name);
 
         setMeasuredPoints(measuredPoints);

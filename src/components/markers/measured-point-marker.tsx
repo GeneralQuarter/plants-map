@@ -1,4 +1,4 @@
-import { Renderer } from 'leaflet';
+import { LeafletMouseEvent, Renderer } from 'leaflet';
 import { FC, useMemo } from 'react';
 import { CircleMarker, Tooltip } from 'react-leaflet';
 import { MeasuredPoint } from '../../models/measured-point';
@@ -6,7 +6,7 @@ import { MeasuredPoint } from '../../models/measured-point';
 interface MeasuredPointMarkerProps {
   point: MeasuredPoint;
   renderer: Renderer;
-  onClick?: () => void;
+  onClick?: (event: LeafletMouseEvent) => void;
 }
 
 const MeasuredPointMarker: FC<MeasuredPointMarkerProps> = ({ point, renderer, onClick }) => {
@@ -15,13 +15,17 @@ const MeasuredPointMarker: FC<MeasuredPointMarkerProps> = ({ point, renderer, on
   }, [point.height]);
 
   const eventHandlers = useMemo(() => ({
-    click: () => {
-      onClick?.();
+    click: (e: LeafletMouseEvent) => {
+      onClick?.(e);
     }
   }), [onClick]);
 
   return <CircleMarker center={point.coords} radius={0.5} renderer={renderer} fillColor={fillColor} color={fillColor} eventHandlers={eventHandlers}>
-    <Tooltip className="measured-point-label"><b>{point.name}</b><br />{point.height.toFixed(3)}m</Tooltip>
+    <Tooltip className="measured-point-label">
+      <b>{point.name}</b><br />
+      {point.height.toFixed(3)}m<br/>
+      {point.description && <>{point.description}<br /></>}
+      </Tooltip>
   </CircleMarker>;
 }
 
