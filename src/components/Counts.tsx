@@ -7,10 +7,12 @@ type CountsProps = {
 };
 
 const Counts: FC<CountsProps> = ({ plants }) => {
+  const notDeadPlants = plants?.filter(p => !p.tags.includes('dead'));
   const counts = useMemo(() => {
     return {
-      planted: plants?.filter(p => p.tags.includes('planted')).length ?? 0,
-      positioned: plants?.filter(p => !p.tags.includes('dead')).length ?? 0,
+      planted: notDeadPlants?.filter(p => p.tags.includes('planted')).length ?? 0,
+      positioned: notDeadPlants?.length ?? 0,
+      dead: (plants?.length ?? 0) - (notDeadPlants?.length ?? 0)
     }
   }, [plants]);
 
@@ -22,6 +24,10 @@ const Counts: FC<CountsProps> = ({ plants }) => {
     <Stack flexDirection='column' alignItems='flex-start' spacing='none'>
       <DisplayText marginBottom='none' fontColor='gray800'>{counts.positioned}</DisplayText>
       <Subheading marginBottom='none' fontColor='gray800'>Positioned</Subheading>
+    </Stack>
+    <Stack flexDirection='column' alignItems='flex-start' spacing='none'>
+      <DisplayText marginBottom='none' fontColor='red800'>{counts.dead}</DisplayText>
+      <Subheading marginBottom='none' fontColor='red800'>Dead</Subheading>
     </Stack>
   </Stack>;
 }
