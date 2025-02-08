@@ -56,6 +56,7 @@ import { useUpdateMapZoneCoordsMutation } from '../lib/mutations/update-map-zone
 import { mapZonesWithCoordsQueryKey, useMapZonesWithCoordsQuery } from '../lib/queries/map-zones-with-coords.query';
 import MapZoneMarker from './markers/map-zone.marker';
 import { coordsToJSONtext } from '../lib/coords-to-json-text';
+import Counts from './Counts';
 
 interface MainProps {
   sdk: PageAppSDK;
@@ -168,6 +169,12 @@ const Main: FC<MainProps> = ({ sdk }) => {
 
   const measuredPointClick = (e: LeafletMouseEvent, measuredPoint: MeasuredPoint) => {
     if (e.originalEvent.ctrlKey) {
+
+      if (selectedPlant) {
+        const newPlant = {...selectedPlant, position: measuredPoint.coords};
+        updatePlantPosition(newPlant);
+      }
+
       let text = `[${measuredPoint.coords[1]}, ${measuredPoint.coords[0]}],`;
       if (e.originalEvent.shiftKey && measuredPoint.description) {
         const allCoords = measuredPoints
@@ -372,6 +379,7 @@ const Main: FC<MainProps> = ({ sdk }) => {
       selectedTags={selectedTags}
     />
     <LeftAside padding="spacingM" flexDirection="column" gap="spacingM">
+      <Counts plants={plants} />
       <Switch isChecked={showLabels} onChange={() => setShowLabels(!showLabels)}>
         Show plant labels
       </Switch>
