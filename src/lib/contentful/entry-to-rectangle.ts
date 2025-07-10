@@ -8,6 +8,6 @@ export function entryToRectangle(entry: RectangleEntry): Rectangle {
     code: entry.fields.code,
     width: entry.fields.width,
     length: entry.fields.length,
-    coords: entry.fields.coords
+    coords: entry.fields.coords,
   };
 }

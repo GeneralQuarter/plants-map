@@ -1,5 +1,5 @@
-import { MapZone } from '../../models/map-zone';
-import { MapZoneEntry } from './map-zone.entry-skeleton';
+import type { MapZone } from '../../models/map-zone';
+import type { MapZoneEntry } from './map-zone.entry-skeleton';
 
 export function entryToMapZone(entry: MapZoneEntry): MapZone {
   return {

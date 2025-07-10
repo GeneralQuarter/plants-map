@@ -10,8 +10,8 @@ const ColoredPill = styled(Pill)`
     content: " ";
     display: block;
     height: 36px;
-    width: ${props => (props as any).hueIndex !== null ? '20px' : '0'};
-    background-color: ${props => colorFromHueIndex((props as any).hueIndex)} !important;
+    width: ${(props) => ((props as any).hueIndex !== null ? '20px' : '0')};
+    background-color: ${(props) => colorFromHueIndex((props as any).hueIndex)} !important;
   }
 `;
 

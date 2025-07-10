@@ -9,7 +9,14 @@ type PlantCommonInfoFields = {
   width: EntryFieldTypes.Number;
   height: EntryFieldTypes.Number;
   sourceLinks: EntryFieldTypes.Array<EntryFieldTypes.Symbol>;
-}
+};
 
-export type PlantCommonInfoEntrySkeleton = EntrySkeletonType<PlantCommonInfoFields, 'PlantCommonInfo'>;
-export type PlantCommonInfoEntry = Entry<PlantCommonInfoEntrySkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>;
+export type PlantCommonInfoEntrySkeleton = EntrySkeletonType<
+  PlantCommonInfoFields,
+  'PlantCommonInfo'
+>;
+export type PlantCommonInfoEntry = Entry<
+  PlantCommonInfoEntrySkeleton,
+  'WITHOUT_UNRESOLVABLE_LINKS',
+  'fr'
+>;

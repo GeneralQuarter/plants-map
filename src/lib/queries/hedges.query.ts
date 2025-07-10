@@ -1,7 +1,7 @@
-import { ContentfulClientApi } from 'contentful';
+import { useQuery } from '@tanstack/react-query';
+import type { ContentfulClientApi } from 'contentful';
 import { useCallback } from 'react';
-import { useQuery } from 'react-query';
-import { Hedge } from '../../models/hedge';
+import type { Hedge } from '../../models/hedge';
 import { getHedges } from '../contentful/get-hedges';
 
 export const hedgesQueryKey = 'hedges';
@@ -12,5 +12,9 @@ export function useHedges(cdaClient: ContentfulClientApi<undefined>) {
     return res.items;
   }, [cdaClient]);
 
-  return useQuery<Hedge[]>(hedgesQueryKey, fetchHedges, {refetchOnWindowFocus: false});
+  return useQuery<Hedge[]>({
+    queryKey: [hedgesQueryKey],
+    queryFn: fetchHedges,
+    refetchOnWindowFocus: false,
+  });
 }

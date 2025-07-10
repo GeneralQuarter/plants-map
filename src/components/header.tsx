@@ -1,7 +1,7 @@
-import { FC, PropsWithChildren } from 'react';
-import { Heading, Flex } from '@contentful/f36-components';
-import styled from '@emotion/styled';
+import { Flex, Heading } from '@contentful/f36-components';
 import tokens from '@contentful/f36-tokens';
+import styled from '@emotion/styled';
+import type { FC, PropsWithChildren } from 'react';
 
 const Container = styled(Flex)`
   position: absolute;
@@ -13,10 +13,18 @@ const Container = styled(Flex)`
 `;
 
 const Header: FC<PropsWithChildren<{}>> = ({ children }) => {
-  return <Container as="header" alignItems="center" gap="spacingS" fullWidth padding="spacingL">
-    <Heading marginBottom="none">Terrain</Heading>
-    {children}
-  </Container>
-}
+  return (
+    <Container
+      as="header"
+      alignItems="center"
+      gap="spacingS"
+      fullWidth
+      padding="spacingL"
+    >
+      <Heading marginBottom="none">Terrain</Heading>
+      {children}
+    </Container>
+  );
+};
 
 export default Header;

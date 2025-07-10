@@ -1,5 +1,11 @@
-import { ConfigAppSDK } from '@contentful/app-sdk';
-import { Flex, Form, FormControl, Heading, TextInput } from '@contentful/f36-components';
+import type { ConfigAppSDK } from '@contentful/app-sdk';
+import {
+  Flex,
+  Form,
+  FormControl,
+  Heading,
+  TextInput,
+} from '@contentful/f36-components';
 import { useSDK } from '@contentful/react-apps-toolkit';
 import { css } from 'emotion';
 import { useCallback, useEffect, useState } from 'react';
@@ -9,7 +15,9 @@ export interface AppInstallationParameters {
 }
 
 const ConfigScreen = () => {
-  const [parameters, setParameters] = useState<AppInstallationParameters>({cdaToken: ''});
+  const [parameters, setParameters] = useState<AppInstallationParameters>({
+    cdaToken: '',
+  });
   const sdk = useSDK<ConfigAppSDK>();
 
   const onConfigure = useCallback(async () => {
@@ -27,7 +35,8 @@ const ConfigScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const currentParameters: AppInstallationParameters | null = await sdk.app.getParameters();
+      const currentParameters: AppInstallationParameters | null =
+        await sdk.app.getParameters();
 
       if (currentParameters) {
         setParameters(currentParameters);
@@ -38,7 +47,10 @@ const ConfigScreen = () => {
   }, [sdk]);
 
   return (
-    <Flex flexDirection="column" className={css({ margin: '80px', maxWidth: '800px' })}>
+    <Flex
+      flexDirection="column"
+      className={css({ margin: '80px', maxWidth: '800px' })}
+    >
       <Form className={css({ width: '500px', margin: '80px' })}>
         <Heading marginBottom="none">Plants Map</Heading>
         <FormControl id="cda-access-token" isRequired>
@@ -46,8 +58,13 @@ const ConfigScreen = () => {
           <TextInput
             name="cda-access-token"
             value={parameters.cdaToken}
-            onChange={evt => setParameters({...parameters, cdaToken: evt.target.value})} />
-          <FormControl.HelpText>Please enter CDA Access Token</FormControl.HelpText>
+            onChange={(evt) =>
+              setParameters({ ...parameters, cdaToken: evt.target.value })
+            }
+          />
+          <FormControl.HelpText>
+            Please enter CDA Access Token
+          </FormControl.HelpText>
         </FormControl>
       </Form>
     </Flex>

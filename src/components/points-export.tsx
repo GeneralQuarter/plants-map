@@ -1,8 +1,8 @@
 import { IconButton } from '@contentful/f36-components';
 import saveAs from 'file-saver';
 import { unparse } from 'papaparse';
-import { FC } from 'react';
-import { Plant } from '../models/plant';
+import type { FC } from 'react';
+import type { Plant } from '../models/plant';
 import ImportIcon from './icons/import.icon';
 
 interface EmlidRow {
@@ -14,13 +14,18 @@ interface EmlidRow {
 
 interface PointsExportProps {
   exportedIds: string[];
-  isExportSelecting: boolean; 
+  isExportSelecting: boolean;
   setIsExportSelecting: (isExportSelecting: boolean) => void;
   clearExportedIds: () => void;
   plants: Plant[] | undefined;
 }
 
-const PointsExport: FC<PointsExportProps> = ({ exportedIds, isExportSelecting, setIsExportSelecting, clearExportedIds, plants }) => {
+const PointsExport: FC<PointsExportProps> = ({
+  exportedIds,
+  isExportSelecting,
+  setIsExportSelecting,
+  plants,
+}) => {
   const exportClick = () => {
     if (!isExportSelecting) {
       setIsExportSelecting(true);
@@ -28,9 +33,9 @@ const PointsExport: FC<PointsExportProps> = ({ exportedIds, isExportSelecting, s
     }
 
     const rows: EmlidRow[] = exportedIds
-      .map(id => plants?.find(p => p.id === id))
-      .filter(n => !!n)
-      .map(p => ({
+      .map((id) => plants?.find((p) => p.id === id))
+      .filter((n) => !!n)
+      .map((p) => ({
         Name: p?.code ?? '',
         Longitude: p?.position?.[1].toFixed(8) ?? '',
         Latitude: p?.position?.[0].toFixed(8) ?? '',
@@ -38,14 +43,22 @@ const PointsExport: FC<PointsExportProps> = ({ exportedIds, isExportSelecting, s
       }));
 
     const csv = unparse<EmlidRow>(rows);
-    saveAs(new Blob([csv], {type: 'text/csv;charset=utf-8;'}), `exported-points-${Date.now()}.csv`);
+    saveAs(
+      new Blob([csv], { type: 'text/csv;charset=utf-8;' }),
+      `exported-points-${Date.now()}.csv`,
+    );
     // clearExportedIds();
     setIsExportSelecting(false);
-  }
+  };
 
-  return <>
-    <IconButton variant={isExportSelecting ? 'primary' : 'positive'} icon={<ImportIcon />} aria-label="Export CSV" onClick={() => exportClick()}/>
-  </>;
-}
+  return (
+    <IconButton
+      variant={isExportSelecting ? 'primary' : 'positive'}
+      icon={<ImportIcon />}
+      aria-label="Export CSV"
+      onClick={() => exportClick()}
+    />
+  );
+};
 
 export default PointsExport;

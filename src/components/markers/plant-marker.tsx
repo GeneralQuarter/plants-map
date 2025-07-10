@@ -1,11 +1,16 @@
+import type {
+  LatLng,
+  Circle as LeafletCircle,
+  PathOptions,
+  Renderer,
+} from 'leaflet';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Circle, Tooltip, useMapEvent } from 'react-leaflet';
-import { Circle as LeafletCircle, LatLng, PathOptions, Renderer } from 'leaflet';
-import HeightTriangle from '../height-triangle';
-import { Plant } from '../../models/plant';
-import { SelectedTag } from '../../models/selected-tag';
-import { colorFromHueIndex } from '../../lib/color-from-hue-index';
 import { MARKED_TAG_ID } from '../../data/keys';
+import { colorFromHueIndex } from '../../lib/color-from-hue-index';
+import type { Plant } from '../../models/plant';
+import type { SelectedTag } from '../../models/selected-tag';
+import HeightTriangle from '../height-triangle';
 
 export interface PlantMarkerProps {
   plant: Plant;
@@ -20,7 +25,18 @@ export interface PlantMarkerProps {
   showCanopy?: boolean;
 }
 
-export default function PlantMarker({ plant, onPositionChange, onClick, selected, exportSelected, renderer, selectedTags, showOutlines, showLabels, showCanopy }: PlantMarkerProps) {
+export default function PlantMarker({
+  plant,
+  onPositionChange,
+  onClick,
+  selected,
+  exportSelected,
+  renderer,
+  selectedTags,
+  showOutlines,
+  showLabels,
+  showCanopy,
+}: PlantMarkerProps) {
   const circleRef = useRef<LeafletCircle | null>(null);
   const [labelFits, setLabelFits] = useState(false);
   const [locked, setLocked] = useState(true);
@@ -30,32 +46,35 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     return plant.tags.includes('planted');
   }, [plant.tags]);
 
-  const eventHandlers = useMemo(() => ({
-    contextmenu() {
-      // disable dragging on planted trees
-      if (planted) {
-        setLocked(true);
-        return;
-      }
+  const eventHandlers = useMemo(
+    () => ({
+      contextmenu() {
+        // disable dragging on planted trees
+        if (planted) {
+          setLocked(true);
+          return;
+        }
 
-      if (!locked && newPosition) {
-        onPositionChange?.(newPosition);
-        setNewPosition(null);
-      }
+        if (!locked && newPosition) {
+          onPositionChange?.(newPosition);
+          setNewPosition(null);
+        }
 
-      setLocked(!locked);
-    },
-    click(e: {target: LeafletCircle, originalEvent: MouseEvent}) {
-      if (e.target.pm.dragging()) {
-        return;
-      }
+        setLocked(!locked);
+      },
+      click(e: { target: LeafletCircle; originalEvent: MouseEvent }) {
+        if (e.target.pm.dragging()) {
+          return;
+        }
 
-      onClick?.(e.originalEvent);
-    },
-    'pm:dragend': (e: {target: LeafletCircle}) => {
-      setNewPosition(e.target.getLatLng());
-    }
-  }), [locked, newPosition, planted, onClick, onPositionChange]);
+        onClick?.(e.originalEvent);
+      },
+      'pm:dragend': (e: { target: LeafletCircle }) => {
+        setNewPosition(e.target.getLatLng());
+      },
+    }),
+    [locked, newPosition, planted, onClick, onPositionChange],
+  );
 
   const updateLabelFits = () => {
     const circle = circleRef.current;
@@ -75,7 +94,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
         setLabelFits(false);
       }
     }
-  }
+  };
 
   const isPlanted = useMemo(() => {
     return plant.tags.includes('planted');
@@ -102,7 +121,9 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
       return '#33691e';
     }
 
-    const firstSelectedTag = selectedTags.find(t => plant.tags.includes(t.id));
+    const firstSelectedTag = selectedTags.find((t) =>
+      plant.tags.includes(t.id),
+    );
 
     if (!firstSelectedTag) {
       return 'gray';
@@ -123,11 +144,11 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     if (locked) {
       setTimeout(() => {
         circle.pm.disableLayerDrag();
-      }, 0)
+      }, 0);
     } else {
       circle.pm.enableLayerDrag();
     }
-  }, [circleRef, locked]);
+  }, [locked]);
 
   const isPinned = useMemo(() => {
     return plant.tags.includes('jalonne');
@@ -163,7 +184,7 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
     return {
       color,
       fillColor: !locked ? 'blue' : fillColor,
-    }
+    };
   }, [color, locked, fillColor]);
 
   const renderLabel = useMemo(() => {
@@ -172,25 +193,32 @@ export default function PlantMarker({ plant, onPositionChange, onClick, selected
 
   const radius = useMemo(() => {
     const plantRadius = plant.width / 2;
-    return showCanopy ? plant.width / 2 : (plantRadius < 1 ? plantRadius : 1);
+    return showCanopy ? plant.width / 2 : plantRadius < 1 ? plantRadius : 1;
   }, [plant.width, showCanopy]);
-  
+
   return (
-    <Circle center={plant.position ?? [0, 0]} 
+    <Circle
+      center={plant.position ?? [0, 0]}
       radius={radius}
       ref={circleRef}
       eventHandlers={eventHandlers}
-      pathOptions={pathOptions} 
+      pathOptions={pathOptions}
       weight={1}
-      renderer={renderer}>
-      {renderLabel && 
-        <Tooltip direction="center" interactive={false} permanent={true} className="plant-label">
+      renderer={renderer}
+    >
+      {renderLabel && (
+        <Tooltip
+          direction="center"
+          interactive={false}
+          permanent={true}
+          className="plant-label"
+        >
           <div className="code">{plant.code}</div>
           <div className="height">{plant.height}</div>
           <div className="plant-center"></div>
           <HeightTriangle height="40" width="40" className="triangle" />
         </Tooltip>
-      }
+      )}
     </Circle>
-  )
+  );
 }

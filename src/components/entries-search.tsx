@@ -1,15 +1,15 @@
 import { Autocomplete, Flex } from '@contentful/f36-components';
-import { ContentfulClientApi, Entry, EntrySkeletonType } from 'contentful';
-import { FC, useEffect, useState } from 'react';
-import { queryEntries } from '../lib/contentful/query-entries';
-import { ContentType } from '../lib/contentful/content-type';
 import { MenuIcon, PlusIcon, PreviewIcon } from '@contentful/f36-icons';
-import { useDebounce } from '../lib/use-debounce';
-import type { PlantEntry } from '../lib/contentful/plant.entry-skeleton';
-import type { PlantCommonInfoEntry } from '../lib/contentful/plant-common-info.entry-skeleton';
-import type { RectangleEntry } from '../lib/contentful/rectangle.entry-skeleton';
+import type { ContentfulClientApi, Entry, EntrySkeletonType } from 'contentful';
+import { type FC, useEffect, useState } from 'react';
+import { ContentType } from '../lib/contentful/content-type';
 import type { HedgeEntry } from '../lib/contentful/hedge.entry-skeleton';
 import type { MapZoneEntry } from '../lib/contentful/map-zone.entry-skeleton';
+import type { PlantEntry } from '../lib/contentful/plant.entry-skeleton';
+import type { PlantCommonInfoEntry } from '../lib/contentful/plant-common-info.entry-skeleton';
+import { queryEntries } from '../lib/contentful/query-entries';
+import type { RectangleEntry } from '../lib/contentful/rectangle.entry-skeleton';
+import { useDebounce } from '../lib/use-debounce';
 
 interface EntriesSearchProps {
   cdaClient: ContentfulClientApi<undefined>;
@@ -21,37 +21,49 @@ interface GenericGroupType<T> {
   options: T[];
 }
 
-type EntryGroupType<T extends EntrySkeletonType> = GenericGroupType<Entry<T, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>>;
+type EntryGroupType<T extends EntrySkeletonType> = GenericGroupType<
+  Entry<T, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>
+>;
 type GroupedEntries = EntryGroupType<any>[];
 
-const contentTypeToGroupIndex: ContentType[] = [ContentType.Rectangle, ContentType.Plant, ContentType.PlantCard, ContentType.Hedge, ContentType.MapZone];
+const contentTypeToGroupIndex: ContentType[] = [
+  ContentType.Rectangle,
+  ContentType.Plant,
+  ContentType.PlantCard,
+  ContentType.Hedge,
+  ContentType.MapZone,
+];
 
-const entriesToGroupedEntries = (entries: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>[]): GroupedEntries => {
+const entriesToGroupedEntries = (
+  entries: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>[],
+): GroupedEntries => {
   const groups: GroupedEntries = [
     {
       groupTitle: 'Rectangles',
-      options: []
+      options: [],
     },
     {
       groupTitle: 'Plants',
-      options: []
+      options: [],
     },
     {
       groupTitle: 'Plant Cards',
-      options: []
+      options: [],
     },
     {
       groupTitle: 'Hedges',
-      options: []
+      options: [],
     },
     {
       groupTitle: 'Zones',
-      options: []
-    }
-  ]
+      options: [],
+    },
+  ];
 
   for (const entry of entries) {
-    const groupIndex = contentTypeToGroupIndex.indexOf(entry.sys.contentType.sys.id as ContentType);
+    const groupIndex = contentTypeToGroupIndex.indexOf(
+      entry.sys.contentType.sys.id as ContentType,
+    );
 
     if (groupIndex === -1) {
       continue;
@@ -63,53 +75,68 @@ const entriesToGroupedEntries = (entries: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS
   const plantGroupIndex = contentTypeToGroupIndex.indexOf(ContentType.Plant);
 
   groups[plantGroupIndex].options.sort((a, b) => {
-    const pA = (a as PlantEntry);
-    const pB = (b as PlantEntry);
+    const pA = a as PlantEntry;
+    const pB = b as PlantEntry;
 
     return pA.fields.code.localeCompare(pB.fields.code);
   });
 
   return groups;
-}
+};
 
 const renderItem = (entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => {
   const contentType = entry.sys.contentType.sys.id as ContentType;
 
   switch (contentType) {
-    case ContentType.Plant:
-      const plantEntry = (entry as PlantEntry);
-      return <Flex alignItems="center" gap='spacingS'>
-        {plantEntry.fields.position ? <PreviewIcon /> : <PlusIcon />}
-        <span>{plantEntry.fields.code}</span>
-      </Flex>;
+    case ContentType.Plant: {
+      const plantEntry = entry as PlantEntry;
+      return (
+        <Flex alignItems="center" gap="spacingS">
+          {plantEntry.fields.position ? <PreviewIcon /> : <PlusIcon />}
+          <span>{plantEntry.fields.code}</span>
+        </Flex>
+      );
+    }
     case ContentType.PlantCard:
-      return <Flex alignItems="center" gap='spacingS'>
-        <MenuIcon />
-        <span>{(entry as PlantCommonInfoEntry).fields.fullLatinName}</span>
-      </Flex>
-    case ContentType.Rectangle:
-      const plantRectangleEntry = (entry as RectangleEntry);
-      return <Flex alignItems="center" gap='spacingS'>
-        {plantRectangleEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
-        <span>{plantRectangleEntry.fields.label}</span>
-      </Flex>;
+      return (
+        <Flex alignItems="center" gap="spacingS">
+          <MenuIcon />
+          <span>{(entry as PlantCommonInfoEntry).fields.fullLatinName}</span>
+        </Flex>
+      );
+    case ContentType.Rectangle: {
+      const plantRectangleEntry = entry as RectangleEntry;
+      return (
+        <Flex alignItems="center" gap="spacingS">
+          {plantRectangleEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
+          <span>{plantRectangleEntry.fields.label}</span>
+        </Flex>
+      );
+    }
     case ContentType.Hedge:
-      return <Flex alignItems="center" gap='spacingS'>
-        <PreviewIcon />
-        <span>{(entry as HedgeEntry).fields.name}</span>
-      </Flex>
-    case ContentType.MapZone:
-      const mapZoneEntry = (entry as MapZoneEntry);
-      return <Flex alignItems="center" gap='spacingS'>
-        {mapZoneEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
-        <span>{mapZoneEntry.fields.name}</span>
-      </Flex>
+      return (
+        <Flex alignItems="center" gap="spacingS">
+          <PreviewIcon />
+          <span>{(entry as HedgeEntry).fields.name}</span>
+        </Flex>
+      );
+    case ContentType.MapZone: {
+      const mapZoneEntry = entry as MapZoneEntry;
+      return (
+        <Flex alignItems="center" gap="spacingS">
+          {mapZoneEntry.fields.coords ? <PreviewIcon /> : <PlusIcon />}
+          <span>{mapZoneEntry.fields.name}</span>
+        </Flex>
+      );
+    }
     default:
       return <span></span>;
   }
-}
+};
 
-const itemToString = (entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => {
+const itemToString = (
+  entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>,
+) => {
   const contentType = entry.sys.contentType.sys.id as ContentType;
 
   switch (contentType) {
@@ -120,11 +147,11 @@ const itemToString = (entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => 
     case ContentType.Rectangle:
       return (entry as RectangleEntry).fields.label;
     case ContentType.Hedge:
-        return (entry as HedgeEntry).fields.name;
+      return (entry as HedgeEntry).fields.name;
     default:
       return '';
   }
-}
+};
 
 const EntriesSearch: FC<EntriesSearchProps> = ({ cdaClient, onEntryClick }) => {
   const [items, setItems] = useState<GroupedEntries>([]);
@@ -144,24 +171,28 @@ const EntriesSearch: FC<EntriesSearchProps> = ({ cdaClient, onEntryClick }) => {
       try {
         const result = await queryEntries(cdaClient, debouncedInputValue);
         setItems(entriesToGroupedEntries(result.items));
-      } catch (e) {}
+      } catch (_e) {}
 
       setIsLoading(false);
     })();
   }, [cdaClient, debouncedInputValue]);
 
-  return <Autocomplete<Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>>
-    isGrouped 
-    items={items} 
-    itemToString={itemToString}
-    renderItem={renderItem}
-    onSelectItem={(entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) => onEntryClick?.(entry)}
-    onInputValueChange={setInputValue}
-    listWidth={'full'}
-    listMaxHeight={360}
-    isLoading={isLoading}
-    clearAfterSelect
-  />;
-}
+  return (
+    <Autocomplete<Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>>
+      isGrouped
+      items={items}
+      itemToString={itemToString}
+      renderItem={renderItem}
+      onSelectItem={(entry: Entry<any, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>) =>
+        onEntryClick?.(entry)
+      }
+      onInputValueChange={setInputValue}
+      listWidth={'full'}
+      listMaxHeight={360}
+      isLoading={isLoading}
+      clearAfterSelect
+    />
+  );
+};
 
 export default EntriesSearch;

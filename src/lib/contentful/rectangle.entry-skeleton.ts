@@ -7,7 +7,14 @@ type RectangleFields = {
   width: EntryFieldTypes.Number;
   length: EntryFieldTypes.Number;
   coords?: EntryFieldTypes.Object<CoordsJsonArray>;
-}
+};
 
-export type RectangleEntrySkeleton = EntrySkeletonType<RectangleFields, 'rectangle'>;
-export type RectangleEntry = Entry<RectangleEntrySkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'fr'>;
+export type RectangleEntrySkeleton = EntrySkeletonType<
+  RectangleFields,
+  'rectangle'
+>;
+export type RectangleEntry = Entry<
+  RectangleEntrySkeleton,
+  'WITHOUT_UNRESOLVABLE_LINKS',
+  'fr'
+>;

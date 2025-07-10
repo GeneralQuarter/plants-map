@@ -6,5 +6,5 @@ export function entryToHedge(entry: HedgeEntry): Hedge {
     id: entry.sys.id,
     name: entry.fields.name,
     coords: entry.fields.coords,
-  }
+  };
 }

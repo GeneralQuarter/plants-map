@@ -4,6 +4,6 @@ export interface MeasurementNode {
 }
 
 export interface MeasurementGraph {
-  nodes: {[id: string]: MeasurementNode};
+  nodes: { [id: string]: MeasurementNode };
   edges: [aId: string, bId: string][];
 }

@@ -1,4 +1,4 @@
-import { LatLngExpression, PathOptions } from 'leaflet';
+import type { LatLngExpression, PathOptions } from 'leaflet';
 
 export interface HardcodedMapObject {
   positions: LatLngExpression[];

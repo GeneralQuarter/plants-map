@@ -1,13 +1,13 @@
 import { IconButton } from '@contentful/f36-components';
 import styled from '@emotion/styled';
-import { ChangeEvent, FC, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { parse } from 'papaparse';
-import { MeasuredPoint } from '../models/measured-point';
-import ExportIcon from './icons/export.icon';
-import { useQueryClient } from 'react-query';
-import { Plant } from '../models/plant';
-import { plantsWithPositionQueryKey } from '../lib/queries/plants-with-position.query';
+import { type ChangeEvent, type FC, useRef } from 'react';
 import { MARKED_TAG_ID } from '../data/keys';
+import { plantsWithPositionQueryKey } from '../lib/queries/plants-with-position.query';
+import type { MeasuredPoint } from '../models/measured-point';
+import type { Plant } from '../models/plant';
+import ExportIcon from './icons/export.icon';
 
 interface PointsLoaderProps {
   setMeasuredPoints: (points: MeasuredPoint[]) => void;
@@ -28,57 +28,82 @@ const PointsLoader: FC<PointsLoaderProps> = ({ setMeasuredPoints }) => {
 
     if (e.target.files[0].name.endsWith('.json')) {
       const marked = JSON.parse(await e.target.files[0].text());
-      queryClient.setQueryData<Plant[]>(plantsWithPositionQueryKey, (old = []) => {
-        const newPlants = [...old];
+      queryClient.setQueryData<Plant[]>(
+        [plantsWithPositionQueryKey],
+        (old = []) => {
+          const newPlants = [...old];
 
-        for (const plantId of marked) {
-          const plantIndex = old.findIndex(p => p.id === plantId);
+          for (const plantId of marked) {
+            const plantIndex = old.findIndex((p) => p.id === plantId);
 
-          if (plantIndex === -1) {
-            continue;
+            if (plantIndex === -1) {
+              continue;
+            }
+
+            const oldPlant = old[plantIndex];
+
+            if (oldPlant.tags.includes(MARKED_TAG_ID)) {
+              continue;
+            }
+
+            const newPlantTags = [...oldPlant.tags, MARKED_TAG_ID];
+            const newPlant = { ...oldPlant, tags: newPlantTags };
+            newPlants.splice(plantIndex, 1, newPlant);
           }
 
-          const oldPlant = old[plantIndex];
-
-          if (oldPlant.tags.includes(MARKED_TAG_ID)) {
-            continue;
-          }
-
-          const newPlantTags = [...oldPlant.tags, MARKED_TAG_ID];
-          const newPlant = {...oldPlant, tags: newPlantTags};
-          newPlants.splice(plantIndex, 1, newPlant);
-        }
-
-        return newPlants;
-      });
+          return newPlants;
+        },
+      );
       return;
     }
 
     parse(e.target.files[0], {
       header: true,
-      complete: r => {
+      complete: (r) => {
         const firstRow: any = r.data[0];
 
-        if (!firstRow.Name || !firstRow.Latitude || !firstRow.Longitude || !firstRow['Ellipsoidal height']) {
+        if (
+          !firstRow.Name ||
+          !firstRow.Latitude ||
+          !firstRow.Longitude ||
+          !firstRow['Ellipsoidal height']
+        ) {
           return;
         }
 
-        const measuredPoints = r.data.map((d: any) => ({
-          name: d.Name,
-          coords: [parseFloat(d.Latitude), parseFloat(d.Longitude)],
-          height: parseFloat(d['Ellipsoidal height']),
-          description: d.Description,
-        }) as MeasuredPoint).filter(n => !!n.name);
+        const measuredPoints = r.data
+          .map(
+            (d: any) =>
+              ({
+                name: d.Name,
+                coords: [parseFloat(d.Latitude), parseFloat(d.Longitude)],
+                height: parseFloat(d['Ellipsoidal height']),
+                description: d.Description,
+              }) as MeasuredPoint,
+          )
+          .filter((n) => !!n.name);
 
         setMeasuredPoints(measuredPoints);
-      }
-    })
-  }
+      },
+    });
+  };
 
-  return <>
-    <IconButton variant="positive" icon={<ExportIcon />} aria-label="Import CSV or JSON" onClick={() => fileInput.current?.click()}/>
-    <HiddenFileInput type="file" ref={fileInput} accept=".csv,.json" onChange={onChange} />
-  </>;
-}
+  return (
+    <>
+      <IconButton
+        variant="positive"
+        icon={<ExportIcon />}
+        aria-label="Import CSV or JSON"
+        onClick={() => fileInput.current?.click()}
+      />
+      <HiddenFileInput
+        type="file"
+        ref={fileInput}
+        accept=".csv,.json"
+        onChange={onChange}
+      />
+    </>
+  );
+};
 
 export default PointsLoader;

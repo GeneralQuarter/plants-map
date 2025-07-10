@@ -3,7 +3,7 @@ import type { Tags } from '../../models/tags';
 
 export async function getTags(cdaClient: ContentfulClientApi<undefined>) {
   const tagCollection = await cdaClient.getTags({
-    limit: 1000
+    limit: 1000,
   });
 
   return tagCollection.items.reduce((acc, tagEntry) => {
